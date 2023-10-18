@@ -1,0 +1,29 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "mesagrid"
+version = "0.1.0"
+authors = [
+  { name="Earl Patrick Bellinger", email="earl.bellinger@yale.edu" },
+]
+description = "Parse grids of MESA tracks and models"
+readme = "README.rst"
+requires-python = ">=3.6"
+classifiers = [
+        'Development Status :: 6 - Mature',
+        'Intended Audience :: Science/Research',
+        'License :: OSI Approved :: MIT License',
+        'Natural Language :: English',
+        'Programming Language :: Python :: 3',
+        'Programming Language :: Python :: 3.6',
+        'Programming Language :: Python :: 3.7',
+        'Programming Language :: Python :: 3.8',
+        'Topic :: Scientific/Engineering :: Astronomy',
+        'Topic :: Scientific/Engineering :: Physics',
+]
+
+[project.urls]
+"Homepage" = "https://github.com/earlbellinger/mesagrid"
+"Bug Tracker" = "https://github.com/earlbellinger/mesagrid/issues"
