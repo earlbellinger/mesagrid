@@ -11,7 +11,6 @@ authors = [
 description = "Parse grids of MESA tracks and models"
 readme = "README.rst"
 requires-python = ">=3.6"
-license="MIT"
 keywords="mesagrid"
 classifiers = [
         'Development Status :: 6 - Mature',
