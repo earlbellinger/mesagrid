@@ -5,7 +5,8 @@
 
 import unittest
 
-from mesagrid import mesagrid
+#from mesagrid import mesagrid
+import mesagrid
 
 
 class TestMesagrid(unittest.TestCase):
