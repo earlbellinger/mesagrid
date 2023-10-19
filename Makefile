@@ -78,6 +78,10 @@ servedocs: docs ## compile the docs watching for changes
 release: dist ## package and upload a release
 	twine upload dist/*
 
+pip: ## build and upload to pip 
+	python3 -m build
+	python3 -m twine upload dist/*
+
 dist: clean ## builds source and wheel package
 	python setup.py sdist
 	python setup.py bdist_wheel
