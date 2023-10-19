@@ -13,18 +13,9 @@ mesagrid
         :target: https://mesagrid.readthedocs.io/en/latest/?version=latest
         :alt: Documentation Status
 
-
+.. image:: https://img.shields.io/badge/license-MIT-orange.svg?style=flat
+        :target: https://github.com/earlbellinger/mesagrid/blob/main/LICENSE
+        :alt: MIT License
 
 
 Parse grids of MESA tracks and models
-
-
-* Free software: MIT license
-* Documentation: https://mesagrid.readthedocs.io.
-
-
-Features
---------
-
-* TODO
-
