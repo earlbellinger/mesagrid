@@ -25,6 +25,9 @@ classifiers = [
         'Topic :: Scientific/Engineering :: Astronomy',
         'Topic :: Scientific/Engineering :: Physics',
 ]
+dependencies = [
+    "tomso >= 0.2.1"
+]
 
 [project.urls]
 homepage = "https://github.com/earlbellinger/mesagrid"
