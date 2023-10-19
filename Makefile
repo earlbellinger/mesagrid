@@ -79,6 +79,7 @@ release: dist ## package and upload a release
 	twine upload dist/*
 
 pip: ## build and upload to pip 
+	make clean 
 	python3 -m build
 	python3 -m twine upload dist/*
 
