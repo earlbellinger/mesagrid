@@ -3,7 +3,6 @@
 import os
 import numpy as np
 import pandas as pd
-import scipy as sp
 from tomso import gyre
 from tqdm import tqdm
 from concurrent.futures import ThreadPoolExecutor

@@ -5,7 +5,6 @@
 
 import unittest
 
-#from mesagrid import mesagrid
 import mesagrid
 
 
