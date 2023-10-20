@@ -1,6 +1,6 @@
 import numpy as np
-from ipywidgets import interact, FloatSlider, IntSlider
-import matplotlib as mpl
+#from ipywidgets import interact, FloatSlider, IntSlider
+#import matplotlib as mpl
 import matplotlib.pyplot as plt
 
 red = "#CA0020"

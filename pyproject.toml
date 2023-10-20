@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "mesagrid"
-version = "0.1.7"
+version = "0.1.8"
 authors = [
   { name="Earl Patrick Bellinger", email="earl.bellinger@yale.edu" },
 ]
@@ -12,6 +12,7 @@ description = "Parse grids of MESA tracks and models"
 readme = "README.rst"
 requires-python = ">=3.6"
 keywords = ["mesagrid"]
+license = {file = "LICENSE"}
 classifiers = [
         'Development Status :: 6 - Mature',
         'Intended Audience :: Science/Research',
@@ -26,7 +27,11 @@ classifiers = [
         'Topic :: Scientific/Engineering :: Physics',
 ]
 dependencies = [
-    "tomso >= 0.2.1"
+    "tomso >= 0.2.1",
+    "pandas >= 1.3.4",
+    "numpy >= 1.20.3",
+    "tqdm >= 4.62.3",
+    "matplotlib >= 3.4.3"
 ]
 
 [project.urls]
