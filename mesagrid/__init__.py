@@ -6,4 +6,4 @@ __version__ = version("mesagrid")
 __author__ = """Earl Patrick Bellinger"""
 __email__ = 'earl.bellinger@yale.edu'
 
-from star import *
+from mesagrid.star import *
