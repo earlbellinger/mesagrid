@@ -4,18 +4,18 @@ mesagrid package
 Submodules
 ----------
 
-mesagrid.mesagrid module
-------------------------
+mesagrid.star module
+--------------------
 
-.. automodule:: mesagrid.mesagrid
+.. automodule:: mesagrid.star
    :members:
    :undoc-members:
    :show-inheritance:
 
-mesagrid.mesagrid\_plots module
--------------------------------
+mesagrid.star\_plots module
+---------------------------
 
-.. automodule:: mesagrid.mesagrid_plots
+.. automodule:: mesagrid.star_plots
    :members:
    :undoc-members:
    :show-inheritance:
