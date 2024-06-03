@@ -99,8 +99,11 @@ def plot_echelle(track, profile_number, sph_deg=-1, rad_ord=-1):
     prof = profs[profile_number-1] if profile_number < len(profs) else profs[0]
     freq = freqs[profile_number-1] if profile_number < len(freqs) else freqs[0]
     
+    radial = freq[freq.l == 0]
+    Dnu = np.median(np.diff(radial['Re(freq)']))
+
     nu_max = hist.nu_max.values[0]
-    Dnu = hist.Dnu0.values[0]
+    #Dnu = hist.delta_nu.values[0]
     
     if np.isnan(Dnu):
         plt.ylabel(frequency)
