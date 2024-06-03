@@ -8,6 +8,8 @@ from tqdm import tqdm
 from concurrent.futures import ThreadPoolExecutor
 
 class Track:
+    """These are some test docs because I do not know how sphinx works 👍
+    """
     def __init__(self, dir, parameters=None, 
                  load_history_extras=None, 
                  usecols_profiles=None,
