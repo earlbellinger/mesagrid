@@ -7,3 +7,4 @@ coverage==4.5.4
 Sphinx==7.3.7
 twine==1.14.0
 mesagrid>=0.1
+sphinx-rtd-theme=2.0.0
