@@ -14,15 +14,27 @@ luminosity = r'luminosity $\mathbf{L/L_\odot}$'
 frequency = r'frequency $\mathbf{\nu/\mu Hz}$'
 numodDnu = r'$\mathbf{\nu}$ mod $\mathbf{\Delta\nu/\mu Hz}$'
 
-def plot_hr(track, profile_number=-1):
+def plot_hr(track, profile_number=-1, show_profiles=False, solar_symbol=False):
     hist = track.history
     plt.plot(10**hist['log_Teff'], 
              10**hist['log_L'], lw=1, c='k', zorder=-9999)
+
+    if show_profiles:
+        for prof_num in track.index.profile_number:
+            hist = track.get_history(prof_num)
+            plt.plot(10**hist['log_Teff'], 
+                     10**hist['log_L'], '.', c='k', ms=3, mfc='none', mew=2, zorder=-9)
 
     if profile_number > 0:
         hist = track.get_history(profile_number)
         plt.plot(10**hist['log_Teff'], 
                  10**hist['log_L'], 'o', c=red, ms=15, mfc='none', mew=2, zorder=-9)
+
+
+
+    if solar_symbol:
+        plt.plot(5772.003429098915, 1, 'k.')
+        plt.plot(5772.003429098915, 1, 'ko', mfc='none', ms=10)
 
     plt.gca().invert_xaxis()
     plt.xlabel(Teff)
