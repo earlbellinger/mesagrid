@@ -6,7 +6,7 @@ tox==3.14.0
 coverage==4.5.4
 Sphinx==7.3.7
 twine==1.14.0
-#mesagrid>=0.2
+mesagrid>=0.2
 #sphinx-rtd-theme==2.0.0
 myst_nb==1.1.0
 sphinxawesome-theme==5.2.0
