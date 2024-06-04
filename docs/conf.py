@@ -158,7 +158,7 @@ texinfo_documents = [
      'mesagrid Documentation',
      author,
      'mesagrid',
-     'One line description of project.',
+     'Parsing, analyzing, and visualizing grids of MESA models.',
      'Miscellaneous'),
 ]
 
