@@ -26,6 +26,7 @@ A python library for parsing, analyzing, and visualizing grids of MESA tracks an
 
    installation
    usage
+   quickstart
    modules
    contributing
    authors
