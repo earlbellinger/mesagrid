@@ -52,12 +52,17 @@ def plot_propagation(track, profile_number):
     hist = track.get_history(profile_number)
     gyre = track.gyres[profile_number-1]
     
+    muHz = 10**6/(2*np.pi)
+
     x = gyre.x
-    brunt = gyre.N/(2*np.pi)*1e6
-    brunt[brunt<0]=1e-10
-    brunt[np.isnan(brunt)]=1e-10
     
-    lamb = np.sqrt(1*(1+1))*gyre.cs / gyre.r * 1e6
+    brunt = gyre.N * muHz
+    brunt[brunt<0] = 0
+    brunt[np.isnan(brunt)] = 0
+    
+    r = gyre.r 
+    r[r <= 0] = 1e-99
+    lamb = np.sqrt(1*(1+1))*gyre.cs / r * muHz
     
     plt.plot(x, brunt, lw=3, label='Buoyancy')
     plt.plot(x, lamb, lw=3, label='Lamb')

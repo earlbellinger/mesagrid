@@ -9,5 +9,6 @@ To use mesagrid in a project::
 .. toctree::
    :maxdepth: 1
 
+   preliminaries
    quickstart
    plotting
