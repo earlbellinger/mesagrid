@@ -1,4 +1,5 @@
-.. include:: ../README.rst
+mesagrid
+========
 
 .. toctree::
    :maxdepth: 1
