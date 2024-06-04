@@ -107,3 +107,4 @@ ENV/
 
 # myst_nb
 jupyter_execute/
+.jupyter_cache/
