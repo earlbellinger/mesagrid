@@ -4,7 +4,13 @@ import os
 import numpy as np
 import pandas as pd
 from tomso import gyre
-from tqdm import tqdm
+#from tqdm import tqdm
+
+import warnings
+from tqdm import TqdmExperimentalWarning
+warnings.filterwarnings("ignore", category=TqdmExperimentalWarning)
+from tqdm.autonotebook import tqdm
+
 #from concurrent.futures import ThreadPoolExecutor
 
 class Track:
