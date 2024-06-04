@@ -18,4 +18,4 @@ mesagrid
         :alt: MIT License
 
 
-Parse grids of MESA tracks and models
+A python library for parsing, analyzing, and visualizing grids of MESA tracks and models, including stellar pulsation data. 
