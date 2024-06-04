@@ -6,4 +6,8 @@ To use mesagrid in a project::
 
     import mesagrid
 
-.. :ref:`quickstart`
+.. toctree::
+   :maxdepth: 1
+
+   quickstart
+   plotting

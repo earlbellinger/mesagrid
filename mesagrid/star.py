@@ -33,7 +33,7 @@ class Track:
     #def __repr__(self):
     #    return repr(self.history)
     def __repr__(self):
-        return f"Track in directory: {self.dir}\nCall track.history, track.profiles, track.freqs, track.index"
+        return f"Track in directory: {self.dir}\ncall track.history, track.profiles, track.freqs, track.index"
 
     #def __repr__(self):
     #    display(self.history)
