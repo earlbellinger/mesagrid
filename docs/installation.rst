@@ -32,13 +32,13 @@ You can either clone the public repository:
 
 .. code-block:: console
 
-    $ git clone git://github.com/earlbellinger@gmail.com/mesagrid
+    $ git clone git://github.com/earlbellinger/mesagrid
 
 Or download the `tarball`_:
 
 .. code-block:: console
 
-    $ curl -OJL https://github.com/earlbellinger@gmail.com/mesagrid/tarball/master
+    $ curl -OJL https://github.com/earlbellinger/mesagrid/tarball/master
 
 Once you have a copy of the source, you can install it with:
 
@@ -47,5 +47,5 @@ Once you have a copy of the source, you can install it with:
     $ python setup.py install
 
 
-.. _Github repo: https://github.com/earlbellinger@gmail.com/mesagrid
-.. _tarball: https://github.com/earlbellinger@gmail.com/mesagrid/tarball/master
+.. _Github repo: https://github.com/earlbellinger/mesagrid
+.. _tarball: https://github.com/earlbellinger/mesagrid/tarball/master
