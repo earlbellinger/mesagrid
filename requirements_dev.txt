@@ -10,4 +10,4 @@ mesagrid>=0.1
 #sphinx-rtd-theme==2.0.0
 #myst_parser==3.0.1
 myst_nb==1.1.0
-sphinxawesome-theme=5.2.0
+sphinxawesome-theme==5.2.0
