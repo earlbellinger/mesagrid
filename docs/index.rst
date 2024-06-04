@@ -21,7 +21,7 @@ mesagrid
 A python library for parsing, analyzing, and visualizing grids of MESA tracks and models, including stellar pulsation data. 
 
 .. toctree::
-   :maxdepth: 1
+   :maxdepth: 2
    :caption: Contents:
 
    installation

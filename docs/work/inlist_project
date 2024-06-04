@@ -1,0 +1,37 @@
+&star_job
+    relax_initial_y = .true.
+    relax_initial_z = .true.
+    new_y = 0.269
+    new_z = 0.0187
+/ ! end of star_job namelist
+
+
+&eos
+/ ! end of eos namelist
+
+
+&kap
+    Zbase = 0.0187
+/ ! end of kap namelist
+
+
+&controls
+  ! starting specifications
+    initial_mass = 1 ! in Msun units
+    mixing_length_alpha = 2.22
+    
+  ! when to stop
+    max_age = 11d9
+    
+  ! input physics 
+    do_element_diffusion = .true.
+    
+  ! asteroseismology
+    write_pulse_data_with_profile = .true.
+    pulse_data_format = 'GYRE'
+    add_atmosphere_to_pulse_data = .true.
+    history_interval = 1
+    profile_interval = 20
+    
+/ ! end of controls namelist
+

@@ -5,7 +5,7 @@ import numpy as np
 import pandas as pd
 from tomso import gyre
 from tqdm import tqdm
-from concurrent.futures import ThreadPoolExecutor
+#from concurrent.futures import ThreadPoolExecutor
 
 class Track:
     def __init__(self, dir, parameters=None, 
@@ -30,6 +30,11 @@ class Track:
         self._gyres    = None
         self._freqs    = None
     
+    #def __repr__(self):
+    #    return repr(self.history)
+    def __repr__(self):
+        return f"Track in directory: {self.dir}\nCall track.history, track.profiles, track.freqs, track.index"
+
     #def __repr__(self):
     #    display(self.history)
     #    return ''
