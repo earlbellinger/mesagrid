@@ -1,5 +1,4 @@
 import numpy as np
-from ipywidgets import interact, IntSlider
 import matplotlib.pyplot as plt
 
 red = "#CA0020"
@@ -153,6 +152,7 @@ def plot_panels(track, profile_number):
     plt.tight_layout()
 
 def star_interact(track):
+    from ipywidgets import interact, IntSlider
     interact(lambda profile_number: 
              plot_panels(track, profile_number), 
              profile_number=IntSlider(min=1, max=np.max(track.index.profile_number)));

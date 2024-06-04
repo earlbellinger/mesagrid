@@ -633,7 +633,7 @@ legend.fontsize : 15
 #mathtext.fontset : cm
 axes.labelpad : 5
 axes.titlepad : 10
-font.sans-serif : Arial
+#font.sans-serif : Arial
 font.family: sans-serif
 #font.family : STIXGeneral
 mathtext.fontset: stixsans
