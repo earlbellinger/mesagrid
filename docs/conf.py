@@ -39,7 +39,7 @@ templates_path = ['_templates']
 # The suffix(es) of source filenames.
 # You can specify multiple suffix as a list of string:
 #
-source_suffix = ['.rst', '.md', '.ipynb']
+source_suffix = ['.rst', '.md']
 #source_suffix = '.rst'
 
 # The master toctree document.
@@ -47,7 +47,7 @@ master_doc = 'index'
 
 # General information about the project.
 project = 'mesagrid'
-copyright = "2023, Earl Patrick Bellinger"
+copyright = "2024, Earl Patrick Bellinger"
 author = "Earl Patrick Bellinger"
 
 # The version info for the project you're documenting, acts as replacement
@@ -83,9 +83,9 @@ todo_include_todos = False
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
 #
-#html_permalinks_icon = '<span>#</span>'
-#html_theme = 'sphinxawesome-theme'
-html_theme = 'sphinx-rtd-theme'
+html_permalinks_icon = '<span>#</span>'
+html_theme = 'sphinxawesome_theme'
+#html_theme = 'sphinx-rtd-theme'
 
 # Theme options are theme-specific and customize the look and feel of a
 # theme further.  For a list of options available for each theme, see the
