@@ -1,5 +1,5 @@
-mesagrid
-========
+Modules
+=======
 
 .. toctree::
    :maxdepth: 4
