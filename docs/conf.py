@@ -37,8 +37,6 @@ extensions = [
     "sphinx.ext.intersphinx",
     "sphinx.ext.extlinks",
     "sphinx.ext.viewcode",
-    "sphinx_sitemap",
-    "sphinx_design",
     "myst_nb"
 ]
 
