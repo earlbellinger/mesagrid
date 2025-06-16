@@ -10,6 +10,10 @@ import warnings
 from tqdm import TqdmExperimentalWarning
 warnings.filterwarnings("ignore", category=TqdmExperimentalWarning)
 from tqdm.autonotebook import tqdm
+from datetime import datetime
+
+print(f'Updated star.py {datetime.now()}')
+
 
 class Track:
     def __init__(self, dir, parameters=None, 
@@ -18,7 +22,8 @@ class Track:
                  usecols_history=None, 
                  cpus=None,
                  logs_dir="LOGS"):
-        self.dir = os.path.join(dir, logs_dir)
+        # self.dir = os.path.join(dir, logs_dir)
+        self.dir = dir
         self.parameters = parameters
         self.cpus = os.cpu_count() if cpus is None else cpus
         

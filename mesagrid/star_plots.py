@@ -1,44 +1,97 @@
 import numpy as np
 import matplotlib.pyplot as plt
+import pandas as pd
+
+import matplotlib
+import os
+from datetime import datetime
+print(f'Updated starplots.py {datetime.now()}')
+
+
+plt.rcParams.update({'axes.linewidth' : 1,
+                     'ytick.major.width' : 1,
+                     'ytick.minor.width' : 1,
+                     'xtick.major.width' : 1,
+                     'xtick.minor.width' : 1,
+                     'xtick.labelsize': 12, 
+                     'ytick.labelsize': 12,
+                     'axes.labelsize': 14,
+                     'font.family': 'Serif',
+                     'figure.figsize': (6, 4),
+                     'mathtext.fontset': 'custom',
+                     'mathtext.rm': 'Serif',
+                     'mathtext.it': 'Serif:italic',
+                     'mathtext.bf': 'Serif:bold'
+                    })
 
 red = "#CA0020"
 orange = "#F97100" 
 blue = "#0571b0"
 
 # labels 
-density = r'density $\mathbf{\rho~/~[g/cm^3]}$'
-frac_radius = r'fractional radius $\mathbf{r/R_\odot}$'
-frac_mass = r'fractional mass $\mathbf{m/M_\odot}$'
-Teff = r'effective temperature $\mathbf{T_{eff}/K}$'
-luminosity = r'luminosity $\mathbf{L/L_\odot}$'
-frequency = r'frequency $\mathbf{\nu/\mu Hz}$'
-numodDnu = r'$\mathbf{\nu}$ mod $\mathbf{\Delta\nu/\mu Hz}$'
+density = r'Density $\rho$ [g cm$^{-3}$]'
+frac_radius = r'Fractional Radius [R$_\odot$]'
+frac_mass = r'Fractional Mass [M$_\odot$]'
+Teff = 'Effective Temperature [K]'
+luminosity = r'Luminosity [L$_\odot$]'
+frequency = r'Frequency [$\mu$Hz]'
+numodDnu = r'$\nu$ % $\Delta$\nu$'
 
-def plot_hr(track, profile_number=-1, show_profiles=False, solar_symbol=False):
+project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
+
+
+def plot_colors(ax=None, zorder=-100, alpha=0.5):
+    if ax is None:
+        ax = plt.gca()
+
+    y = np.linspace(ax.get_ylim()[0], ax.get_ylim()[1])
+    xlim = ax.get_xlim()
+
+    star_colors = pd.read_table(os.path.join(project_root, './docs/bbr_color.txt'), skiprows=19, header=None, sep=r'\s+').iloc[1::2, :]
+    star_colors.columns = ['temperature', 'unit', 'deg', 'x', 'y', 'power', 'R', 'G', 'B', 'r', 'g', 'b', 'hex']
+
+    for temp, hex in zip(star_colors.temperature, star_colors.hex):
+        ax.fill_between(np.linspace(float(temp), float(temp)+100), y[0], y[-1], color=hex, zorder=zorder)
+
+    ax.add_patch(plt.Rectangle((xlim[0], y[0]), xlim[1]-xlim[0], y[-1]-y[0], facecolor='white', edgecolor='none', alpha=1-alpha, zorder=zorder+1))
+
+    ax.set_xlim(xlim)
+    ax.set_ylim(y[0], y[-1])
+
+
+
+def plot_hr(track, profile_number=-1, show_profiles=False, solar_symbol=False, ax=None):
+    if ax is None:
+        ax = plt.gca()
+
     hist = track.history
-    plt.plot(10**hist['log_Teff'], 
-             10**hist['log_L'], lw=1, c='k', zorder=-9999)
+    ax.plot(10**hist['log_Teff'], 
+             10**hist['log_L'], lw=1, c='k', zorder=-9)
 
     if show_profiles:
         for prof_num in track.index.profile_number:
             hist = track.get_history(prof_num)
-            plt.plot(10**hist['log_Teff'], 
+            ax.plot(10**hist['log_Teff'], 
                      10**hist['log_L'], '.', c='k', ms=3, mfc='none', mew=2, zorder=-9)
 
     if profile_number > 0:
         hist = track.get_history(profile_number)
-        plt.plot(10**hist['log_Teff'], 
+        ax.plot(10**hist['log_Teff'], 
                  10**hist['log_L'], 'o', c=red, ms=15, mfc='none', mew=2, zorder=-9)
 
-
-
     if solar_symbol:
-        plt.plot(5772.003429098915, 1, 'k.')
-        plt.plot(5772.003429098915, 1, 'ko', mfc='none', ms=10)
+        ax.plot(5772.003429098915, 1, 'k.')
+        ax.plot(5772.003429098915, 1, 'ko', mfc='none', ms=10)
 
-    plt.gca().invert_xaxis()
-    plt.xlabel(Teff)
-    plt.ylabel(luminosity)
+    ax.invert_xaxis()
+    ax.set_yscale('log')
+
+    
+    ax.get_yaxis().set_major_formatter(matplotlib.ticker.ScalarFormatter())
+    ax.get_yaxis().set_minor_formatter(matplotlib.ticker.ScalarFormatter())
+
+    ax.set_xlabel(Teff)
+    ax.set_ylabel(luminosity)
 
 def plot_composition(track, profile_number):
     profs = track.profiles
