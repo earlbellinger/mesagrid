@@ -66,7 +66,7 @@ def plot_colors(ax=None, zorder=-100, alpha=0.5):
 def plot_hr(track, profile_number=-1, show_profiles=False, solar_symbol=False, ax=None):
     if ax is None:
         ax = plt.gca()
-
+        
     hist = track.history
     ax.plot(10**hist['log_Teff'], 
              10**hist['log_L'], lw=1, c='k', zorder=-9)
@@ -89,7 +89,8 @@ def plot_hr(track, profile_number=-1, show_profiles=False, solar_symbol=False, a
     ax.invert_xaxis()
     ax.set_yscale('log')
 
-    
+    plot_colors(ax=ax)
+
     ax.get_yaxis().set_major_formatter(matplotlib.ticker.ScalarFormatter())
     ax.get_yaxis().set_minor_formatter(matplotlib.ticker.ScalarFormatter())
 
@@ -311,8 +312,8 @@ def plot_panels(track, profile_number):
     plt.subplot(2,2,2)
     plot_composition(track, profile_number)
     
-    plt.subplot(2,2,3)
-    plot_echelle(track, profile_number)
+    # plt.subplot(2,2,3)
+    # plot_echelle(track, profile_number)
     
     plt.subplot(2,2,4)
     plot_propagation(track, profile_number)
@@ -323,4 +324,4 @@ def star_interact(track):
     from ipywidgets import interact, IntSlider
     interact(lambda profile_number: 
              plot_panels(track, profile_number), 
-             profile_number=IntSlider(min=1, max=np.max(track.index.profile_number)));
+             profile_number=IntSlider(min=1, max=np.max(track.index.profile_number)))
