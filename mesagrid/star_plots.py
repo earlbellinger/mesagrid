@@ -2,6 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import pandas as pd
 
+import scipy
 import matplotlib
 import os
 from datetime import datetime
@@ -27,6 +28,8 @@ plt.rcParams.update({'axes.linewidth' : 1,
 red = "#CA0020"
 orange = "#F97100" 
 blue = "#0571b0"
+six_colors = ['#264653', '#287271', '#2A9D8F','#E9C46A', '#F4A261', '#E76F51']
+
 
 # labels 
 density = r'Density $\rho$ [g cm$^{-3}$]'
@@ -93,7 +96,8 @@ def plot_hr(track, profile_number=-1, show_profiles=False, solar_symbol=False, a
     ax.set_xlabel(Teff)
     ax.set_ylabel(luminosity)
 
-def plot_composition(track, profile_number):
+
+def plot_composition_old(track, profile_number):
     profs = track.profiles
     ZAMS_X = profs[0].x_mass_fraction_H.values[0]
     ZAMS_Y = profs[0].y_mass_fraction_He.values[0]
@@ -112,6 +116,93 @@ def plot_composition(track, profile_number):
     plt.xlabel(frac_radius)
     plt.ylabel(r'mass fraction')
     plt.legend()
+
+def plot_composition(track, profile_number, mass=True, ax=None):
+    if ax is None:
+        ax = plt.gca()
+
+    if track._profiles is not None:
+        prof = track.profiles[profile_number-1]
+    else:
+        prof = track.load_profile(profile_number)
+
+    if mass:
+        x = prof.mass
+
+        # Get Convection Zones in the Mass Coordinate
+        c1 = track.history['mass_conv_core'][profile_number]
+        c2 = track.history['conv_mx1_bot'][profile_number]*max(x)
+        c3 = track.history['conv_mx1_top'][profile_number]*max(x)
+        c4 = track.history['conv_mx2_bot'][profile_number]*max(x)
+        c5 = track.history['conv_mx2_top'][profile_number]*max(x)
+        
+        # Get Helium and Hydrogen Burning Regions in the Mass Coordinate
+        ppcnomin = np.min(prof.mass[(prof.pp+prof.cno) > 0.001])
+        ppcnomax = np.max(prof.mass[(prof.pp+prof.cno) > 0.001]) 
+
+        try:
+            triamin = np.min(prof.mass[(prof.tri_alpha) > 0.001]) 
+            triamax = np.max(prof.mass[(prof.tri_alpha) > 0.001])
+        except:
+            triamin = np.min(prof.mass[(prof.tri_alfa) > 0.001]) 
+            triamax = np.max(prof.mass[(prof.tri_alfa) > 0.001])
+        
+        ax.set_xlabel(frac_mass)
+
+      
+
+    if not mass:
+        x = 10**prof.logR / max(10**prof.logR)
+
+        mass_to_radius = scipy.interpolate.interp1d(prof.mass, x, fill_value='extrapolate')
+
+        # Get Convection Zones in the Radius Coordinate
+        c1 = mass_to_radius(track.history['mass_conv_core'][profile_number])
+        c2 = mass_to_radius(track.history['conv_mx1_bot'][profile_number]*max(prof.mass))
+        c3 = mass_to_radius(track.history['conv_mx1_top'][profile_number]*max(prof.mass))
+        c4 = mass_to_radius(track.history['conv_mx2_bot'][profile_number]*max(prof.mass))
+        c5 = mass_to_radius(track.history['conv_mx2_top'][profile_number]*max(prof.mass))
+
+        ppcnomin = mass_to_radius(np.min(prof.mass[(prof.pp+prof.cno) > 0.001]))
+        ppcnomax = mass_to_radius(np.max(prof.mass[(prof.pp+prof.cno) > 0.001]))
+
+        try:
+            triamin = mass_to_radius(np.min(prof.mass[(prof.tri_alpha) > 0.001]))
+            triamax = mass_to_radius(np.max(prof.mass[(prof.tri_alpha) > 0.001]))
+        except:
+            triamin = mass_to_radius(np.min(prof.mass[(prof.tri_alfa) > 0.001])) 
+            triamax = mass_to_radius(np.max(prof.mass[(prof.tri_alfa) > 0.001]))
+
+        ax.set_xlabel(frac_radius)
+
+    
+    # Plot Convection Zones
+    ax.fill_betweenx(np.linspace(0,1), 0,  c1, color='darkgray', zorder=-9999)
+    ax.fill_betweenx(np.linspace(0,1), c2, c3, color='darkgray', zorder=-9999)
+    ax.fill_betweenx(np.linspace(0,1), c4, c5, color='darkgray', zorder=-9999)
+
+    # Plot Hydrogen + Helium Burning Zones
+    ax.fill_betweenx(np.linspace(0, 1), ppcnomin, ppcnomax, hatch='\\\\', ec='k', fc='none', alpha=0.5, lw=0, zorder=-999)
+    ax.fill_betweenx(np.linspace(0, 1), triamin,  triamax,  hatch='////', ec='k', fc='none', alpha=0.5, lw=0, zorder=-999)
+
+
+    ax.fill_between(x, 0, prof.x_mass_fraction_H, color=six_colors[1], alpha=0.3)
+    ax.fill_between(x, 0, prof.y_mass_fraction_He, color=six_colors[5], alpha=0.3)
+
+    ax.plot(x, prof.x_mass_fraction_H, lw=3, label='H', c=six_colors[1])
+    ax.plot(x, prof.y_mass_fraction_He, lw=3, label='He', c=six_colors[5])
+
+    ax.set_xlim(0,max(x))
+    ax.set_ylim(0,1)
+    ax.set_ylabel('Mass Fraction')
+    
+    ax.tick_params(axis='both', which='major')
+    ax.tick_params(axis='both', which='minor')
+
+
+
+    
+
 
 def plot_propagation(track, profile_number):
     hist = track.get_history(profile_number)
