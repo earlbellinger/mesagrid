@@ -117,6 +117,7 @@ def plot_composition_old(track, profile_number):
     plt.ylabel(r'mass fraction')
     plt.legend()
 
+
 def plot_composition(track, profile_number, mass=True, ax=None):
     if ax is None:
         ax = plt.gca()
@@ -148,8 +149,6 @@ def plot_composition(track, profile_number, mass=True, ax=None):
             triamax = np.max(prof.mass[(prof.tri_alfa) > 0.001])
         
         ax.set_xlabel(frac_mass)
-
-      
 
     if not mass:
         x = 10**prof.logR / max(10**prof.logR)
@@ -197,20 +196,29 @@ def plot_composition(track, profile_number, mass=True, ax=None):
     ax.set_ylabel('Mass Fraction')
     
     ax.tick_params(axis='both', which='major')
-    ax.tick_params(axis='both', which='minor')
+    ax.tick_params(axis='both', which='minor')   
 
 
+def plot_propagation(track, profile_number, ax=None, mass=False):
+    if ax is None:
+        ax = plt.gca()
 
-    
-
-
-def plot_propagation(track, profile_number):
     hist = track.get_history(profile_number)
-    gyre = track.gyres[profile_number-1]
+
+    if track._gyres is not None:
+        gyre = track.gyres[profile_number-1]
+    else:
+        gyre = track.load_gyre(profile_number)
     
     muHz = 10**6/(2*np.pi)
 
     x = gyre.x
+    ax.set_xlabel(frac_radius)
+
+    if mass:
+        x = gyre.m/gyre.M
+        ax.set_xlabel(frac_mass)
+
     
     brunt = gyre.N * muHz
     brunt[brunt<0] = 0
@@ -220,34 +228,33 @@ def plot_propagation(track, profile_number):
     r[r <= 0] = 1e-99
     lamb = np.sqrt(1*(1+1))*gyre.cs / r * muHz
     
-    plt.plot(x, brunt, lw=3, label='Buoyancy')
-    plt.plot(x, lamb, lw=3, label='Lamb')
+    ax.plot(x, brunt, lw=3, color=six_colors[1], label='Buoyancy')
+    ax.plot(x, lamb, lw=3, color=six_colors[5], label='Lamb')
     
     gmodes = np.minimum(brunt, lamb)
     pmodes = np.maximum(brunt, lamb)
-    plt.fill_between(x, 
+    ax.fill_between(x, 
                      np.zeros(len(gmodes)), 
                      gmodes, 
-                     color='blue', alpha=0.1, zorder=-99)
-    plt.fill_between(x, 
+                     color=six_colors[1], alpha=0.1, zorder=-99)
+    ax.fill_between(x, 
                      1e99*np.ones(len(pmodes)), 
                      pmodes, 
-                     color='orange', alpha=0.1, zorder=-99)
+                     color=six_colors[5], alpha=0.1, zorder=-99)
     
     nu_max   = hist.nu_max.values[0]
     Delta_nu = hist.delta_nu.values[0]
-    plt.axhline(nu_max, ls='--', c='k', label=r'$\nu_\max$', zorder=100)
-    plt.fill_between([0, 1], 
-                     nu_max-5*Delta_nu, 
-                     nu_max+5*Delta_nu, 
-                     color='#aaaaaa', zorder=-98)
+    ax.axhline(nu_max, ls='--', c='k', label=r'$\nu_\max$', zorder=100)
+    ax.fill_between([0, 1], 
+                     nu_max-2*Delta_nu, 
+                     nu_max+2*Delta_nu, 
+                     color='#aaaaaa', alpha=0.5, zorder=-98)
     
-    plt.semilogy()
-    plt.ylim([1e1, 1e4])
-    plt.xlim([0,1])
-    plt.ylabel(frequency)
-    plt.xlabel(frac_radius)
-    plt.legend()
+    ax.set_yscale('log')
+    ax.set_ylim([1e1, 1e5])
+    ax.set_xlim([0,1])
+    ax.set_ylabel(frequency)
+
 
 def plot_echelle(track, profile_number, sph_deg=-1, rad_ord=-1):
     ell_label = {0: 'radial', 1: 'dipole', 2: 'quadrupole', 3: 'octupole'}
