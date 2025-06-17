@@ -23,7 +23,8 @@ plt.rcParams.update({'axes.linewidth' : 1,
                      'mathtext.rm': 'Serif',
                      'mathtext.it': 'Serif:italic',
                      'mathtext.bf': 'Serif:bold',
-                     'axes.labelpad' : 10
+                     'axes.labelpad' : 10,
+                     'legend.fontsize' : 14
                     })
 
 red = "#CA0020"
@@ -404,3 +405,28 @@ def plot_structure(track, axs=None):
         plot_composition(track, profile_number=profile_num, ax=axs[1])
 
     interact(lambda profile_number: change_profile(profile_number), profile_number=IntSlider(min=1, max=np.max(track.index.profile_number)))
+
+
+def plot_temperature_gradients(track, profile_number, mass=True, ax=None):
+    if ax is None:
+        ax = plt.gca()
+    
+    if track._gyres is not None:
+        gyre = track.gyres[profile_number-1]
+    else:
+        gyre = track.load_gyre(profile_number)
+    
+    x = gyre.m/gyre.M
+    ax.set_xlabel(frac_mass)
+
+    if not mass:
+        x = gyre.r/gyre.R
+        ax.set_xlabel(frac_radius)
+
+    ax.plot(x, gyre.grad_a, color=six_colors[1], lw=3, label=r'$\nabla_\mathrm{ad}$')
+    ax.plot(x, gyre.grad_r, color=six_colors[5], lw=3, label=r'$\nabla_\mathrm{rad}$')
+
+    ax.set_ylabel('Temperature Gradient')
+    ax.set_ylim(0, 1)
+    ax.set_xlim(0, 1)
+    ax.legend()
