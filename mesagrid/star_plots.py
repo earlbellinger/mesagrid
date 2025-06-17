@@ -22,7 +22,8 @@ plt.rcParams.update({'axes.linewidth' : 1,
                      'mathtext.fontset': 'custom',
                      'mathtext.rm': 'Serif',
                      'mathtext.it': 'Serif:italic',
-                     'mathtext.bf': 'Serif:bold'
+                     'mathtext.bf': 'Serif:bold',
+                     'axes.labelpad' : 10
                     })
 
 red = "#CA0020"
@@ -295,6 +296,7 @@ def plot_echelle(track, profile_number, sph_deg=-1, rad_ord=-1):
     plt.ylabel(frequency)
     plt.xlabel(numodDnu)
 
+
 def plot_panels(track, profile_number):
     fig = plt.figure(figsize=(12,10))
     
@@ -304,8 +306,8 @@ def plot_panels(track, profile_number):
     plt.subplot(2,2,2)
     plot_composition(track, profile_number)
     
-    # plt.subplot(2,2,3)
-    # plot_echelle(track, profile_number)
+    plt.subplot(2,2,3)
+    plot_echelle(track, profile_number)
     
     plt.subplot(2,2,4)
     plot_propagation(track, profile_number)
@@ -317,3 +319,66 @@ def star_interact(track):
     interact(lambda profile_number: 
              plot_panels(track, profile_number), 
              profile_number=IntSlider(min=1, max=np.max(track.index.profile_number)))
+    
+
+def plot_kippenhahn(track, ax=None):
+    if ax is None:
+        fig = plt.figure(figsize=(7,6.5))
+        ax = fig.gca()
+        
+    # Get axes values
+    mass_max = np.min(np.array([np.max(prof.mass) for prof in track.profiles])) # (mass_max sets axes limits)
+    xm = np.linspace(0, mass_max, 10000)
+    ages = np.array([track.get_history(prof_num).star_age.values[0]/1e9 
+                     for prof_num in track.index.profile_number])
+    
+    # Plot Buoyancy Frequency and Convection
+    X, Y = np.meshgrid(xm, ages)
+    Z = np.array([scipy.interpolate.interp1d(p.mass, np.log10(p.brunt_N/(2*np.pi)), 
+                                            fill_value=np.nan, bounds_error=0)(xm) 
+                                            for p in track.profiles])
+    conv = np.array([scipy.interpolate.interp1d(p.mass, p.brunt_N<0, 
+                fill_value=np.nan, bounds_error=0)(xm) 
+            for p in track.profiles])
+    
+    norm = matplotlib.colors.Normalize(vmin=-4, vmax=0)
+    cmap = matplotlib.cm.ScalarMappable(norm=norm, cmap='YlOrRd')
+    vmin = int(norm.vmin)
+    vmax = int(norm.vmax)
+
+    ax.contourf(Y, X, conv, levels=[0,3], vmin=-1, vmax=3, cmap='Greys', zorder=-99999)
+    ax.contourf(Y, X, Z, levels=np.arange(-4, 1, 0.2), vmin=vmin, vmax=vmax, cmap='YlOrRd', zorder=-99999)
+    ax.set_rasterization_zorder(-1)
+
+    # Plot Hydrogen and Helium Burning Zones
+    ppcnomin = np.array([np.min(p.mass[(p.pp+p.cno) > 0.001]) for p in track.profiles])
+    ppcnomax = np.array([np.max(p.mass[(p.pp+p.cno) > 0.001]) for p in track.profiles])
+    try:
+        triamin = np.array([np.min(p.mass[(p.tri_alpha) > 0.001]) for p in track.profiles])
+        triamax = np.array([np.max(p.mass[(p.tri_alpha) > 0.001]) for p in track.profiles])
+    except:
+        triamin = np.array([np.min(p.mass[(p.tri_alfa) > 0.001]) for p in track.profiles])
+        triamax = np.array([np.max(p.mass[(p.tri_alfa) > 0.001]) for p in track.profiles])
+
+    ax.fill_between(ages, ppcnomin, ppcnomax, hatch='\\\\', ec='k', fc='none', alpha=0.8, lw=0, zorder=-9999)
+    ax.fill_between(ages, triamin,  triamax,  hatch='////', ec='k', fc='none', alpha=1,   lw=0, zorder=-9999)
+    
+    # Plot Spectral Type Line
+    star_colors = pd.read_table(os.path.join(project_root, './docs/bbr_color.txt'), skiprows=19, header=None, sep=r'\s+').iloc[1::2, :]
+    star_colors.columns = ['temperature', 'unit', 'deg', 'x', 'y', 'power', 'R', 'G', 'B', 'r', 'g', 'b', 'hex']
+
+    rgbs_in_teff = scipy.interpolate.interp1d(
+        [float(t) for t in star_colors['temperature']], (star_colors['R'], star_colors['G'], star_colors['B'])
+        )(10**track.history.log_Teff)
+    
+    ax.plot(ages, track.history.star_mass, c='w', lw=10, zorder=-999)
+    for i in range(len(ages)):
+        ax.plot(ages, track.history.star_mass, c=rgbs_in_teff[:, i], lw=8, zorder=-99)
+        
+
+    ax.set_xlabel('Age [Gyr]')
+    ax.set_ylabel(frac_mass)
+    ax.set_ylim(0, mass_max * 1.1)         
+    ax.tick_params(axis='both', which='major')
+    ax.tick_params(axis='both', which='minor')
+

@@ -119,7 +119,7 @@ class Track:
     def get_profiles(self, parallel=False):
         if not parallel:
             return [self.load_profile(profile_number) 
-                for profile_number in tqdm(self.index.profile_number)]
+                for profile_number in tqdm(self.index.profile_number, desc='Loading Profiles: ')]
         with ThreadPoolExecutor(max_workers=self.cpus) as executor:
             return list(tqdm(executor.map(self.load_profile, self.index.profile_number),
                                  total=len(self.index.profile_number)))
@@ -133,7 +133,7 @@ class Track:
     def get_gyres(self, parallel=False):
         if not parallel:
             return [self.load_gyre(profile_number) 
-                    for profile_number in tqdm(self.index.profile_number)]
+                    for profile_number in tqdm(self.index.profile_number, desc='Loading Gyre Files:')]
         with ThreadPoolExecutor(max_workers=self.cpus) as executor:
             return list(tqdm(executor.map(self.load_gyre, self.index.profile_number),
                                  total=len(self.index.profile_number)))
@@ -151,7 +151,7 @@ class Track:
     def get_freqs(self, parallel=False):
         if not parallel:
             return [self.load_freq(profile_number) 
-                    for profile_number in tqdm(self.index.profile_number)]
+                    for profile_number in tqdm(self.index.profile_number, desc='Loading Frequencies: ')]
         with ThreadPoolExecutor(max_workers=self.cpus) as executor:
             return list(tqdm(executor.map(self.load_freq, self.index.profile_number),
                                  total=len(self.index.profile_number)))
