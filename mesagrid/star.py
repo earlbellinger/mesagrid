@@ -145,10 +145,10 @@ class Track:
                                  total=len(self.index.profile_number), desc='Loading GYRE Files: '))
     
     ### FREQUENCIES
-    def load_freq(self, profile_number):
+    def load_freq(self, profile_number, tag=''):
         try:
             freq = pd.read_table(
-                os.path.join(self.dir, self.freqdir, 'profile' + str(profile_number) + '-freqs.dat'), 
+                os.path.join(self.dir, self.freqdir, 'profile' + str(profile_number) + tag + '-freqs.dat'), 
                 sep='\s+', skiprows=5)
         except:
             return None

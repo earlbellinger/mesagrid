@@ -431,7 +431,7 @@ def plot_temperature_gradients(track, profile_number, mass=True, ax=None):
     ax.legend()
 
 
-def plot_pg_vs_x(track, x, ax=None, color=color1, label=''):
+def plot_deltapi_vs_x(track, x, ax=None, color=color1, label=''):
     if ax is None:
         ax = plt.gca()
 
@@ -457,3 +457,36 @@ def plot_beta(track, ax=None, color=color1, label=''):
     
     ax.set_ylabel(r'Period Change $\beta$ [d Myr$^{-1}]$')
     ax.set_xlabel('Fundamental Period [h]')
+
+
+def plot_exact_deltapi(track, profile_num, tag='', ell=1, ax=None, color=color1):
+    if ax is None:
+        ax = plt.gca()
+    frequencies = track.load_freq(profile_num, tag=tag)
+
+    # get g-mode radial orders:
+    frequencies.n_g = [int(x) for x in frequencies.n_g]
+
+    # get only g-modes/mixed modes:
+    dipole_g = frequencies[np.logical_and(frequencies.l == ell, frequencies.n_g > 0)] 
+    dipole_g['P']  = 1/(dipole_g['Re(freq)'] * 10**-6) # seconds
+    
+    for mode in dipole_g.iterrows():
+        # get sequential modes
+        n_pg = mode[1]['n_pg']
+        n_pg2 = dipole_g[dipole_g['n_pg'] == n_pg-1]
+
+        if not n_pg2.empty:
+            dP = (n_pg2['P'].values[0] - mode[1]['P']) # seconds
+            dipole_g.loc[mode[0], 'dP'] = dP
+
+    if 'delta_Pg' in track.history.columns:
+        pg = track.history['delta_Pg'][profile_num]
+    else:
+        gyre = track.load_gyre(profile_num)
+        pg = 2*np.pi**2/np.sqrt(2)/ scipy.integrate.trapezoid(gyre.N[gyre.N>0]/gyre.x[gyre.N>0], gyre.x[gyre.N>0])
+    ax.scatter(dipole_g['P']/3600, dipole_g['dP'], s=10, color=color)
+    ax.axhline(pg, ls='--', c='k', label='asymptotic')
+
+    ax.set_xlabel('Period [h]')
+    ax.set_ylabel('Sequential Period Spacing [s]')
