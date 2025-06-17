@@ -382,3 +382,25 @@ def plot_kippenhahn(track, ax=None):
     ax.tick_params(axis='both', which='major')
     ax.tick_params(axis='both', which='minor')
 
+
+def plot_structure(track, axs=None):
+    # %matplotlib widget
+    from ipywidgets import interact, IntSlider
+    from IPython.display import display
+
+    fig, axs = plt.subplots(1, 2, figsize=(12,6))
+    plot_kippenhahn(track, ax=axs[0])
+    line = [None]
+    
+    def change_profile(profile_num):
+        # profile_num = change['new']
+        axs[1].cla()
+
+        if line[0]:
+            line[0].remove()
+            line[0] = False
+
+        line[0] = axs[0].axvline(float(10**-9 * track.get_history(profile_num).star_age), color='black', linestyle='dashed')
+        plot_composition(track, profile_number=profile_num, ax=axs[1])
+
+    interact(lambda profile_number: change_profile(profile_number), profile_number=IntSlider(min=1, max=np.max(track.index.profile_number)))
