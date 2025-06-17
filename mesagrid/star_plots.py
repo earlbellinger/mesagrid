@@ -430,3 +430,21 @@ def plot_temperature_gradients(track, profile_number, mass=True, ax=None):
     ax.set_ylim(0, 1)
     ax.set_xlim(0, 1)
     ax.legend()
+
+
+# Asteroseismology Plots
+def plot_pg_vs_x(track, x, ax=None):
+    if ax is None:
+        ax = plt.gca()
+
+    if 'delta_Pg' in track.history.columns:
+        pg = track.history['delta_Pg']
+    else:
+        print('period spacing might be noisy')
+        pg = [2*np.pi**2/np.sqrt(2)/ scipy.integrate.trapezoid(gyre.N[gyre.N>0]/gyre.x[gyre.N>0], gyre.x[gyre.N>0]) for gyre in track.gyres]
+    
+    if isinstance(x, str):
+        x = track.history[x]
+
+    ax.plot(x, pg, color=six_colors[1], lw=2)
+    ax.set_ylabel(r'Period Spacing $\Delta\Pi$ [s]')
