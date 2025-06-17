@@ -21,17 +21,24 @@ class Track:
                  usecols_profiles=None,
                  usecols_history=None, 
                  cpus=None,
-                 logs_dir="LOGS"):
-        # self.dir = os.path.join(dir, logs_dir)
+                 parallel=True,
+                 history_name='history.data',
+                 freqdir='',
+                 classical_pulsator=False):
         self.dir = dir
         self.parameters = parameters
         self.cpus = os.cpu_count() if cpus is None else cpus
+        self.parallel=parallel
         
         self.usecols_profiles = usecols_profiles
         self.usecols_history = usecols_history
         
+        self.history_name = history_name
         self.load_history_extras = load_history_extras
+        self.load_fundamentals = classical_pulsator
         self.loaded = False
+
+        self.freqdir = freqdir
         
         self._history  = None
         self._index    = None
@@ -62,16 +69,13 @@ class Track:
         if self._index is None:
             self._index = self.get_index()
         return self._index
-    
-    # this should optionally take a set of profile numbers, and only load those profile numbers 
-    # but it should still be accessible like a list??? like track.profiles[5] 
+
     @property
     def profiles(self):
         if self._profiles is None:
             self._profiles = self.get_profiles()
         return self._profiles
     
-    # this should optionally take a set of profile numbers, and only load those profile numbers 
     @property
     def gyres(self):
         if self._gyres is None:
@@ -88,12 +92,14 @@ class Track:
     def load_history_file(self):
         if self.parameters is not None:
             print("Parsing", self.parameters)
-        DF_ = pd.read_table(os.path.join(self.dir, 'history.data'), 
+        DF_ = pd.read_table(os.path.join(self.dir, self.history_name), 
                             skiprows=5, sep='\s+', 
                             usecols=self.usecols_history)
         
         if self.load_history_extras is not None and not self.loaded:
             DF_ = self.load_history_extras(self, DF_)
+        if self.load_fundamentals:
+            DF_['Fundamental Period'] = pd.Series([uhz_to_h(float(f.iloc[0]['Re(freq)'])) for f in self.freqs])
         
         self.loaded = True
         return DF_
@@ -116,13 +122,13 @@ class Track:
             usecols=self.usecols_profiles)
         return prof
     
-    def get_profiles(self, parallel=False):
-        if not parallel:
+    def get_profiles(self):
+        if not self.parallel:
             return [self.load_profile(profile_number) 
                 for profile_number in tqdm(self.index.profile_number, desc='Loading Profiles: ')]
         with ThreadPoolExecutor(max_workers=self.cpus) as executor:
             return list(tqdm(executor.map(self.load_profile, self.index.profile_number),
-                                 total=len(self.index.profile_number)))
+                                 total=len(self.index.profile_number), desc='Loading Profiles: '))
     
     ### GYRE FILES
     def load_gyre(self, profile_number):
@@ -130,31 +136,31 @@ class Track:
             os.path.join(self.dir, 'profile' + str(profile_number) + '.data.GYRE'))
         return prof
     
-    def get_gyres(self, parallel=False):
-        if not parallel:
+    def get_gyres(self):
+        if not self.parallel:
             return [self.load_gyre(profile_number) 
-                    for profile_number in tqdm(self.index.profile_number, desc='Loading Gyre Files:')]
+                    for profile_number in tqdm(self.index.profile_number, desc='Loading GYRE Files: ')]
         with ThreadPoolExecutor(max_workers=self.cpus) as executor:
             return list(tqdm(executor.map(self.load_gyre, self.index.profile_number),
-                                 total=len(self.index.profile_number)))
+                                 total=len(self.index.profile_number), desc='Loading GYRE Files: '))
     
     ### FREQUENCIES
     def load_freq(self, profile_number):
         try:
             freq = pd.read_table(
-                os.path.join(self.dir, 'profile' + str(profile_number) + '-freqs.dat'), 
+                os.path.join(self.dir, self.freqdir, 'profile' + str(profile_number) + '-freqs.dat'), 
                 sep='\s+', skiprows=5)
         except:
             return None
         return freq
 
-    def get_freqs(self, parallel=False):
-        if not parallel:
+    def get_freqs(self):
+        if not self.parallel:
             return [self.load_freq(profile_number) 
                     for profile_number in tqdm(self.index.profile_number, desc='Loading Frequencies: ')]
         with ThreadPoolExecutor(max_workers=self.cpus) as executor:
             return list(tqdm(executor.map(self.load_freq, self.index.profile_number),
-                                 total=len(self.index.profile_number)))
+                                 total=len(self.index.profile_number), desc='Loading Frequencies: '))
 
 
 class Grid:
@@ -255,6 +261,9 @@ class Grid:
 
 
 ### Helpful load_history_extras 
+def uhz_to_h(f):
+    return 1/(f*10**-6)/3600
+
 def gaussian_weight(x, center, fwhm):
     sigma = fwhm / (2 * np.sqrt(2 * np.log(2)))
     return np.exp(-0.5 * ((x - center) / sigma)**2)
