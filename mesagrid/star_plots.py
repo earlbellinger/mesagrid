@@ -30,7 +30,8 @@ plt.rcParams.update({'axes.linewidth' : 1,
 red = "#CA0020"
 orange = "#F97100" 
 blue = "#0571b0"
-six_colors = ['#264653', '#287271', '#2A9D8F','#E9C46A', '#F4A261', '#E76F51']
+color1 = '#287271'
+color2 = '#E76F51'
 
 
 # labels 
@@ -182,10 +183,10 @@ def plot_composition(track, profile_number, mass=True, ax=None):
     ax.fill_betweenx(np.linspace(0, 1), triamin,  triamax,  hatch='////', ec='k', fc='none', alpha=0.5, lw=0, zorder=-999)
 
     # Plot Abundances
-    ax.fill_between(x, 0, prof.x_mass_fraction_H, color=six_colors[1], alpha=0.3)
-    ax.fill_between(x, 0, prof.y_mass_fraction_He, color=six_colors[5], alpha=0.3)
-    ax.plot(x, prof.x_mass_fraction_H, lw=3, label='H', c=six_colors[1])
-    ax.plot(x, prof.y_mass_fraction_He, lw=3, label='He', c=six_colors[5])
+    ax.fill_between(x, 0, prof.x_mass_fraction_H, color=color1, alpha=0.3)
+    ax.fill_between(x, 0, prof.y_mass_fraction_He, color=color2, alpha=0.3)
+    ax.plot(x, prof.x_mass_fraction_H, lw=3, label='H', c=color1)
+    ax.plot(x, prof.y_mass_fraction_He, lw=3, label='He', c=color2)
 
     ax.set_xlim(0, max(x))
     ax.set_ylim(0, 1)
@@ -223,19 +224,19 @@ def plot_propagation(track, profile_number, ax=None, mass=False):
     r[r <= 0] = 1e-99
     lamb = np.sqrt(1*(1+1))*gyre.cs / r * muHz
     
-    ax.plot(x, brunt, lw=3, color=six_colors[1], label='Buoyancy')
-    ax.plot(x, lamb, lw=3, color=six_colors[5], label='Lamb')
+    ax.plot(x, brunt, lw=3, color=color1, label='Buoyancy')
+    ax.plot(x, lamb, lw=3, color=color2, label='Lamb')
     
     gmodes = np.minimum(brunt, lamb)
     pmodes = np.maximum(brunt, lamb)
     ax.fill_between(x, 
                      np.zeros(len(gmodes)), 
                      gmodes, 
-                     color=six_colors[1], alpha=0.1, zorder=-99)
+                     color=color1, alpha=0.1, zorder=-99)
     ax.fill_between(x, 
                      1e99*np.ones(len(pmodes)), 
                      pmodes, 
-                     color=six_colors[5], alpha=0.1, zorder=-99)
+                     color=color2, alpha=0.1, zorder=-99)
     
     nu_max   = hist.nu_max.values[0]
     Delta_nu = hist.delta_nu.values[0]
@@ -385,7 +386,6 @@ def plot_kippenhahn(track, ax=None):
 
 
 def plot_structure(track, axs=None):
-    # %matplotlib widget
     from ipywidgets import interact, IntSlider
     from IPython.display import display
 
@@ -394,7 +394,6 @@ def plot_structure(track, axs=None):
     line = [None]
     
     def change_profile(profile_num):
-        # profile_num = change['new']
         axs[1].cla()
 
         if line[0]:
@@ -423,8 +422,8 @@ def plot_temperature_gradients(track, profile_number, mass=True, ax=None):
         x = gyre.r/gyre.R
         ax.set_xlabel(frac_radius)
 
-    ax.plot(x, gyre.grad_a, color=six_colors[1], lw=3, label=r'$\nabla_\mathrm{ad}$')
-    ax.plot(x, gyre.grad_r, color=six_colors[5], lw=3, label=r'$\nabla_\mathrm{rad}$')
+    ax.plot(x, gyre.grad_a, color=color1, lw=3, label=r'$\nabla_\mathrm{ad}$')
+    ax.plot(x, gyre.grad_r, color=color2, lw=3, label=r'$\nabla_\mathrm{rad}$')
 
     ax.set_ylabel('Temperature Gradient')
     ax.set_ylim(0, 1)
@@ -432,8 +431,7 @@ def plot_temperature_gradients(track, profile_number, mass=True, ax=None):
     ax.legend()
 
 
-# Asteroseismology Plots
-def plot_pg_vs_x(track, x, ax=None):
+def plot_pg_vs_x(track, x, ax=None, color=color1, label=''):
     if ax is None:
         ax = plt.gca()
 
@@ -446,5 +444,16 @@ def plot_pg_vs_x(track, x, ax=None):
     if isinstance(x, str):
         x = track.history[x]
 
-    ax.plot(x, pg, color=six_colors[1], lw=2)
+    ax.plot(x, pg, color=color, lw=2, label=label)
     ax.set_ylabel(r'Period Spacing $\Delta\Pi$ [s]')
+    
+
+def plot_beta(track, ax=None, color=color1, label=''):
+    if ax is None:
+        ax = plt.gca()
+
+    x = track.history['Fundamental Period']
+    ax.plot(x[1:], np.diff(x)/np.diff(track.history['star_age']) * 1e6/24, color=color, lw=2, label=label)
+    
+    ax.set_ylabel(r'Period Change $\beta$ [d Myr$^{-1}]$')
+    ax.set_xlabel('Fundamental Period [h]')
