@@ -144,9 +144,11 @@ def plot_composition_old(track, profile_number):
     plt.legend()
 
 
-def plot_composition(track, profile_number, mass=True, ax=None):
+def plot_composition(track, profile_number, mass=True, ax=None, title=None):
     if ax is None:
         ax = plt.gca()
+    if title is None:
+        title = track.name
 
     if track._profiles is not None:
         prof = track.profiles[profile_number-1]
@@ -215,6 +217,7 @@ def plot_composition(track, profile_number, mass=True, ax=None):
     ax.set_ylabel('Mass Fraction')
     ax.tick_params(axis='both', which='major')
     ax.tick_params(axis='both', which='minor')   
+    ax.set_title(title)
 
 
 def plot_propagation(track, profile_number, ax=None, mass=False):
@@ -541,7 +544,9 @@ def plot_exact_deltapi(track, profile_num, tag='', ell=1, ax=None, color=color1)
         gyre = track.load_gyre(profile_num)
         pg = 2*np.pi**2/np.sqrt(2)/ scipy.integrate.trapezoid(gyre.N[gyre.N>0]/gyre.x[gyre.N>0], gyre.x[gyre.N>0])
     ax.scatter(dipole_g['P']/3600, dipole_g['dP'], s=10, color=color)
+    
+    ax.plot(dipole_g['P'].iloc[1:]/3600, dipole_g['dP'].iloc[1:], alpha=0.5, linestyle='dashed', lw=1, color=color)
     ax.axhline(pg, ls='--', c='k', label='asymptotic')
 
     ax.set_xlabel('Period [h]')
-    ax.set_ylabel('Sequential Period Spacing [s]')
+    ax.set_ylabel('Exact Period Spacing [s]')
