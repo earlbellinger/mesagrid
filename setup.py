@@ -42,6 +42,6 @@ setup(
     test_suite='tests',
     tests_require=test_requirements,
     url='https://github.com/earlbellinger/mesagrid',
-    version='0.2.2', # bump version here, in requirements_dev.txt, and in pyproject.toml
+    version='0.2.3', # bump version here, in requirements_dev.txt, and in pyproject.toml
     zip_safe=False,
 )

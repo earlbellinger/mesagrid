@@ -10,5 +10,6 @@ Development Lead
 Contributors
 ------------
 
+* Maria Korolik <maria.korolik@yale.edu>
 * Andrés Luengo 
 * KJ McConnell 
