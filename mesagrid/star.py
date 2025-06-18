@@ -24,11 +24,13 @@ class Track:
                  parallel=True,
                  history_name='history.data',
                  freqdir='',
-                 classical_pulsator=False):
+                 classical_pulsator=False,
+                 name='hi :D'):
         self.dir = dir
         self.parameters = parameters
         self.cpus = os.cpu_count() if cpus is None else cpus
         self.parallel=parallel
+        self.name=name
         
         self.usecols_profiles = usecols_profiles
         self.usecols_history = usecols_history
@@ -99,7 +101,7 @@ class Track:
         if self.load_history_extras is not None and not self.loaded:
             DF_ = self.load_history_extras(self, DF_)
         if self.load_fundamentals:
-            DF_['Fundamental Period'] = pd.Series([uhz_to_h(float(f.iloc[0]['Re(freq)'])) for f in self.freqs])
+            DF_['Fundamental Period'] = pd.Series([uhz_to_h(float(f.iloc[0]['Re(freq)'])) if f is not None else np.nan for f in self.freqs])
         
         self.loaded = True
         return DF_

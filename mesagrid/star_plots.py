@@ -16,7 +16,7 @@ plt.rcParams.update({'axes.linewidth' : 1,
                      'xtick.minor.width' : 1,
                      'xtick.labelsize': 12, 
                      'ytick.labelsize': 12,
-                     'axes.labelsize': 14,
+                     'axes.labelsize': 16,
                      'font.family': 'Serif',
                      'figure.figsize': (6, 4),
                      'mathtext.fontset': 'custom',
@@ -65,14 +65,36 @@ def plot_colors(ax=None, zorder=-100, alpha=0.5):
     ax.set_ylim(y[0], y[-1])
 
 
-
-def plot_hr(track, profile_number=-1, show_profiles=False, solar_symbol=False, ax=None):
+def plot_colors_interp(track, x, ax=None):
     if ax is None:
         ax = plt.gca()
+
+    y = np.linspace(ax.get_ylim()[0], ax.get_ylim()[1])
+    xlim = ax.get_xlim()
+
+    temp_to_x = scipy.interpolate.interp1d(10**track.history['log_Teff'], x, fill_value='extrapolate')
+
+    star_colors = pd.read_table('bbr_color.txt', skiprows=19, header=None, sep=r'\s+').iloc[1::2, :]
+    star_colors.columns = ['temperature', 'unit', 'deg', 'x', 'y', 'power', 'R', 'G', 'B', 'r', 'g', 'b', 'hex']
+    for temp, hex in zip(star_colors.temperature, star_colors.hex):
+        ax.fill_between(np.linspace(temp_to_x(float(temp)), temp_to_x(float(temp)+100)), y[0], y[-1], color=hex, zorder=-99)
+
+    
+    ax.set_xlim(xlim)
+    ax.set_ylim(y[0], y[-1])
+
+
+
+
+def plot_hr(track, profile_number=-1, show_profiles=False, solar_symbol=False, ax=None, color='k', alpha=1, alpha_colors=0.5, label=None):
+    if ax is None:
+        ax = plt.gca()
+    if label is None:
+        label = track.name
         
     hist = track.history
     ax.plot(10**hist['log_Teff'], 
-             10**hist['log_L'], lw=1, c='k', zorder=-9)
+             10**hist['log_L'], lw=2, alpha=alpha, c=color, zorder=-9, label=label)
 
     if show_profiles:
         for prof_num in track.index.profile_number:
@@ -92,7 +114,7 @@ def plot_hr(track, profile_number=-1, show_profiles=False, solar_symbol=False, a
     ax.invert_xaxis()
     ax.set_yscale('log')
 
-    plot_colors(ax=ax)
+    plot_colors(ax=ax, alpha=alpha_colors)
 
     ax.get_yaxis().set_major_formatter(matplotlib.ticker.ScalarFormatter())
     ax.get_yaxis().set_minor_formatter(matplotlib.ticker.ScalarFormatter())
@@ -323,10 +345,32 @@ def star_interact(track):
              profile_number=IntSlider(min=1, max=np.max(track.index.profile_number)))
     
 
-def plot_kippenhahn(track, ax=None):
+def plot_kippenhahn_extras(fig):
+    fig.supxlabel('Age [Gyr]')
+    fig.supylabel(r'Fractional Mass [m / M$_\odot$]', x=0)
+
+    norm = matplotlib.colors.Normalize(vmin=-4, vmax=0)
+    cmap = matplotlib.cm.ScalarMappable(norm=norm, cmap='YlOrRd')
+    vmin = int(norm.vmin)
+    vmax = int(norm.vmax)
+
+    cbar_ax = fig.add_axes([1, 0.2, 0.02, 0.6])
+    cb = fig.colorbar(cmap, label=r'Buoyancy frequency $\mathrm{log~N}$/Hz',
+                        boundaries=np.array(range(vmin, vmax+2, 1))-0.5,
+                        ticks=np.array(range(vmin, vmax+1, 1)), cax=cbar_ax)
+    cb.ax.minorticks_off()
+    cb.ax.set_yticklabels([r'$10^{-4}$',r'$10^{-3}$',r'$10^{-2}$',r'$10^{-1}$',r'$10^{0}$'])
+    cb.set_label(label=r'Buoyancy frequency [Hz]', labelpad=10)
+
+    fig.tight_layout()
+
+
+def plot_kippenhahn(track, ax=None, plot_extras=False, title=None):
     if ax is None:
         fig = plt.figure(figsize=(7,6.5))
         ax = fig.gca()
+    if title is None:
+        title = track.name
         
     # Get axes values
     mass_max = np.min(np.array([np.max(prof.mass) for prof in track.profiles])) # (mass_max sets axes limits)
@@ -383,6 +427,10 @@ def plot_kippenhahn(track, ax=None):
     ax.set_ylim(0, mass_max * 1.1)         
     ax.tick_params(axis='both', which='major')
     ax.tick_params(axis='both', which='minor')
+    ax.set_title(title)
+
+    if plot_extras:
+        plot_kippenhahn_extras(fig)
 
 
 def plot_structure(track, axs=None):
@@ -406,9 +454,11 @@ def plot_structure(track, axs=None):
     interact(lambda profile_number: change_profile(profile_number), profile_number=IntSlider(min=1, max=np.max(track.index.profile_number)))
 
 
-def plot_temperature_gradients(track, profile_number, mass=True, ax=None):
+def plot_temperature_gradients(track, profile_number, mass=True, ax=None, c1=color1, c2=color2, label=None):
     if ax is None:
         ax = plt.gca()
+    if label is None:
+        label=r'$\nabla_\mathrm{rad}$'
     
     if track._gyres is not None:
         gyre = track.gyres[profile_number-1]
@@ -422,8 +472,8 @@ def plot_temperature_gradients(track, profile_number, mass=True, ax=None):
         x = gyre.r/gyre.R
         ax.set_xlabel(frac_radius)
 
-    ax.plot(x, gyre.grad_a, color=color1, lw=3, label=r'$\nabla_\mathrm{ad}$')
-    ax.plot(x, gyre.grad_r, color=color2, lw=3, label=r'$\nabla_\mathrm{rad}$')
+    ax.plot(x, gyre.grad_a, color=c1, lw=3, label=r'$\nabla_\mathrm{ad}$')
+    ax.plot(x, gyre.grad_r, color=c2, lw=3, label=label)
 
     ax.set_ylabel('Temperature Gradient')
     ax.set_ylim(0, 1)
@@ -431,29 +481,34 @@ def plot_temperature_gradients(track, profile_number, mass=True, ax=None):
     ax.legend()
 
 
-def plot_deltapi_vs_x(track, x, ax=None, color=color1, label=''):
+def plot_deltapi_vs_x(track, x, ax=None, min=0, max=-1, color=color1, label=None):
     if ax is None:
         ax = plt.gca()
+    if label is None:
+        label = track.name
 
     if 'delta_Pg' in track.history.columns:
-        pg = track.history['delta_Pg']
+        pg = track.history['delta_Pg'].iloc[min:max]
     else:
         print('period spacing might be noisy')
-        pg = [2*np.pi**2/np.sqrt(2)/ scipy.integrate.trapezoid(gyre.N[gyre.N>0]/gyre.x[gyre.N>0], gyre.x[gyre.N>0]) for gyre in track.gyres]
+        pg = [2*np.pi**2/np.sqrt(2)/ scipy.integrate.trapezoid(gyre.N[gyre.N>0]/gyre.x[gyre.N>0], gyre.x[gyre.N>0]) for gyre in track.gyres[min:max]]
     
     if isinstance(x, str):
-        x = track.history[x]
+        x = track.history[x].iloc[min:max]
 
-    ax.plot(x, pg, color=color, lw=2, label=label)
+    ax.plot(x, pg, color=color, lw=3, label=label)
     ax.set_ylabel(r'Period Spacing $\Delta\Pi$ [s]')
     
 
-def plot_beta(track, ax=None, color=color1, label=''):
+def plot_beta(track, ax=None, color=color1, label=None, min=0, max=-1):
     if ax is None:
         ax = plt.gca()
+    if label is None:
+        label = track.name
 
-    x = track.history['Fundamental Period']
-    ax.plot(x[1:], np.diff(x)/np.diff(track.history['star_age']) * 1e6/24, color=color, lw=2, label=label)
+    x = track.history['Fundamental Period'].iloc[min:max]
+
+    ax.plot(x[1:], np.diff(x)/np.diff(track.history['star_age'].iloc[min:max]) * 1e6/24, color=color, lw=3, label=label)
     
     ax.set_ylabel(r'Period Change $\beta$ [d Myr$^{-1}]$')
     ax.set_xlabel('Fundamental Period [h]')
