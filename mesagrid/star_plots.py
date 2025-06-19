@@ -53,7 +53,7 @@ def plot_colors(ax=None, zorder=-100, alpha=0.5):
     y = np.linspace(ax.get_ylim()[0], ax.get_ylim()[1])
     xlim = ax.get_xlim()
 
-    star_colors = pd.read_table(os.path.join(project_root, './docs/bbr_color.txt'), skiprows=19, header=None, sep=r'\s+').iloc[1::2, :]
+    star_colors = pd.read_table(os.path.join(project_root, 'mesagrid/bbr_color.txt'), skiprows=19, header=None, sep=r'\s+').iloc[1::2, :]
     star_colors.columns = ['temperature', 'unit', 'deg', 'x', 'y', 'power', 'R', 'G', 'B', 'r', 'g', 'b', 'hex']
 
     for temp, hex in zip(star_colors.temperature, star_colors.hex):
