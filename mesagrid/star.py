@@ -25,12 +25,15 @@ class Track:
                  history_name='history.data',
                  freqdir='',
                  classical_pulsator=False,
-                 name='hi :D'):
+                 name=None):
         self.dir = dir
         self.parameters = parameters
         self.cpus = os.cpu_count() if cpus is None else cpus
         self.parallel=parallel
         self.name=name
+        if name is None:
+            self.name = self.dir
+        
         
         self.usecols_profiles = usecols_profiles
         self.usecols_history = usecols_history
