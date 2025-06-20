@@ -379,6 +379,8 @@ def plot_kippenhahn(track, ax=None, plot_extras=False, title=None):
     xm = np.linspace(0, mass_max, 10000)
     ages = np.array([track.get_history(prof_num).star_age.values[0]/1e9 
                      for prof_num in track.index.profile_number])
+    masses = np.array([track.get_history(prof_num).star_mass.values[0]
+                     for prof_num in track.index.profile_number])
     
 
     # Plot Buoyancy Frequency and Convection
@@ -420,9 +422,9 @@ def plot_kippenhahn(track, ax=None, plot_extras=False, title=None):
         [float(t) for t in star_colors['temperature']], (star_colors['R'], star_colors['G'], star_colors['B'])
         )(10**track.history.log_Teff)
     
-    ax.plot(ages, track.history.star_mass, c='w', lw=10, zorder=-999)
+    ax.plot(ages, masses, c='w', lw=10, zorder=-999)
     for i in range(len(ages)):
-        ax.plot(ages, track.history.star_mass, c=rgbs_in_teff[:, i], lw=8, zorder=-99)
+        ax.plot(ages, masses, c=rgbs_in_teff[:, i], lw=8, zorder=-99)
         
 
     ax.set_xlabel('Age [Gyr]')
@@ -430,7 +432,6 @@ def plot_kippenhahn(track, ax=None, plot_extras=False, title=None):
     ax.set_ylim(0, mass_max * 1.1)         
     ax.tick_params(axis='both', which='major')
     ax.tick_params(axis='both', which='minor')
-    ax.set_title(title)
 
     if plot_extras:
         plot_kippenhahn_extras(fig)
