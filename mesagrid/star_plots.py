@@ -413,7 +413,7 @@ def plot_kippenhahn(track, ax=None, plot_extras=False, title=None):
     ax.fill_between(ages, triamin,  triamax,  hatch='////', ec='k', fc='none', alpha=1,   lw=0, zorder=-9999)
     
     # Plot Spectral Type Line
-    star_colors = pd.read_table('bbr_color.txt', skiprows=19, header=None, sep=r'\s+').iloc[1::2, :]
+    star_colors = pd.read_table(os.path.join(project_root, 'mesagrid/bbr_color.txt'), skiprows=19, header=None, sep=r'\s+').iloc[1::2, :]
     star_colors.columns = ['temperature', 'unit', 'deg', 'x', 'y', 'power', 'R', 'G', 'B', 'r', 'g', 'b', 'hex']
 
     rgbs_in_teff = scipy.interpolate.interp1d(
