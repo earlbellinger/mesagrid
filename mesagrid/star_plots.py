@@ -41,7 +41,7 @@ frac_mass = r'Fractional Mass [M$_\odot$]'
 Teff = 'Effective Temperature [K]'
 luminosity = r'Luminosity [L$_\odot$]'
 frequency = r'Frequency [$\mu$Hz]'
-numodDnu = r'$\nu$ % $\Delta$\nu$'
+numodDnu = r'$\nu$ % $\Delta\nu$'
 
 project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 
@@ -217,7 +217,6 @@ def plot_composition(track, profile_number, mass=True, ax=None, title=None):
     ax.set_ylabel('Mass Fraction')
     ax.tick_params(axis='both', which='major')
     ax.tick_params(axis='both', which='minor')   
-    ax.set_title(title)
 
 
 def plot_propagation(track, profile_number, ax=None, mass=False):
@@ -381,14 +380,15 @@ def plot_kippenhahn(track, ax=None, plot_extras=False, title=None):
     ages = np.array([track.get_history(prof_num).star_age.values[0]/1e9 
                      for prof_num in track.index.profile_number])
     
+
     # Plot Buoyancy Frequency and Convection
     X, Y = np.meshgrid(xm, ages)
-    Z = np.array([scipy.interpolate.interp1d(p.mass, np.log10(p.brunt_N/(2*np.pi)), 
+    Z = np.array([scipy.interpolate.interp1d(g.m/(1.989e33), np.log10(g.N *  10**6/(2*np.pi)), 
                                             fill_value=np.nan, bounds_error=0)(xm) 
-                                            for p in track.profiles])
-    conv = np.array([scipy.interpolate.interp1d(p.mass, p.brunt_N<0, 
+                                            for g in track.gyres])
+    conv = np.array([scipy.interpolate.interp1d(g.m/(1.989e33), g.N<0, 
                 fill_value=np.nan, bounds_error=0)(xm) 
-            for p in track.profiles])
+            for g in track.gyres])
     
     norm = matplotlib.colors.Normalize(vmin=-4, vmax=0)
     cmap = matplotlib.cm.ScalarMappable(norm=norm, cmap='YlOrRd')
