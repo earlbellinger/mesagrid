@@ -144,7 +144,7 @@ def plot_composition_old(track, profile_number):
     plt.legend()
 
 
-def plot_composition(track, profile_number, mass=True, ax=None, title=None, legend=False):
+def plot_composition(track, profile_number, burning_threshold=None, mass=True, ax=None, title=None, legend=False):
     if ax is None:
         ax = plt.gca()
     if title is None:
@@ -155,7 +155,7 @@ def plot_composition(track, profile_number, mass=True, ax=None, title=None, lege
     else:
         prof = track.load_profile(profile_number)
 
-    x = prof.mass
+    x = prof.mass / max(prof.mass)
 
     # Get Convection Zones in Mass Coordinate
     c1 = track.history['mass_conv_core'][profile_number]
@@ -165,22 +165,29 @@ def plot_composition(track, profile_number, mass=True, ax=None, title=None, lege
     c5 = track.history['conv_mx2_top'][profile_number]*max(x)
     
     # Get Hydrogen and Helium Burning Regions in Mass Coordinate
-    ppcnomin = np.min(prof.mass[(prof.pp+prof.cno) > 0.001])
-    ppcnomax = np.max(prof.mass[(prof.pp+prof.cno) > 0.001]) 
+    if burning_threshold is None:
+        try:
+            burning_threshold = 0.1 * np.mean([prof.pp + prof.cno + prof.tri_alpha])
+        except:
+            burning_threshold = 0.1 * np.mean([prof.pp + prof.cno + prof.tri_alfa])
+
+
+    ppcnomin = np.min(prof.mass[(prof.pp+prof.cno) > burning_threshold])
+    ppcnomax = np.max(prof.mass[(prof.pp+prof.cno) > burning_threshold]) 
 
     try:
-        triamin = np.min(prof.mass[(prof.tri_alpha) > 0.001]) 
-        triamax = np.max(prof.mass[(prof.tri_alpha) > 0.001])
+        triamin = np.min(prof.mass[(prof.tri_alpha) > burning_threshold]) 
+        triamax = np.max(prof.mass[(prof.tri_alpha) > burning_threshold])
     except:
-        triamin = np.min(prof.mass[(prof.tri_alfa) > 0.001]) 
-        triamax = np.max(prof.mass[(prof.tri_alfa) > 0.001])
+        triamin = np.min(prof.mass[(prof.tri_alfa) > burning_threshold]) 
+        triamax = np.max(prof.mass[(prof.tri_alfa) > burning_threshold])
     
     ax.set_xlabel(frac_mass)
 
     if not mass:
         x = 10**prof.logR / max(10**prof.logR)
 
-        mass_to_radius = sp.interpolate.interp1d(prof.mass, x, fill_value='extrapolate')
+        mass_to_radius = sp.interpolate.interp1d(prof.mass/max(prof.mass), x, fill_value='extrapolate')
 
         # Convert Convection Zones to Radius Coordinate
         c1 = mass_to_radius(c1)
@@ -395,7 +402,7 @@ def plot_kippenhahn(track, ax=None, plot_extras=False, title=None):
     Z = np.array([sp.interpolate.interp1d(g.m/(1.989e33), np.log10(g.N *  10**6/(2*np.pi)), 
                                             fill_value=np.nan, bounds_error=0)(xm) 
                                             for g in track.gyres])
-    conv = np.array([sp.interpolate.interp1d(g.m/(1.989e33), g.N<0, 
+    conv = np.array([sp.interpolate.interp1d(g.m/(1.989e33), g.N2<0, 
                 fill_value=np.nan, bounds_error=0)(xm) 
             for g in track.gyres])
     

@@ -98,7 +98,7 @@ class Track:
         if self.parameters is not None:
             print("Parsing", self.parameters)
         DF_ = pd.read_table(os.path.join(self.dir, self.history_name), 
-                            skiprows=5, sep='\s+', 
+                            skiprows=5, sep=r'\s+', 
                             usecols=self.usecols_history)
         
         if self.load_history_extras is not None and not self.loaded:
@@ -117,13 +117,13 @@ class Track:
     def get_index(self):
         return pd.read_table(os.path.join(self.dir, 'profiles.index'), 
                              names=['model_number', 'priority', 'profile_number'], 
-                             skiprows=1, sep='\s+')
+                             skiprows=1, sep=r'\s+')
     
     ### PROFILES
     def load_profile(self, profile_number):
         prof = pd.read_table(
             os.path.join(self.dir, 'profile' + str(profile_number) + '.data'), 
-            skiprows=5, sep='\s+',
+            skiprows=5, sep=r'\s+',
             usecols=self.usecols_profiles)
         return prof
     
@@ -154,7 +154,7 @@ class Track:
         try:
             freq = pd.read_table(
                 os.path.join(self.dir, self.freqdir, 'profile' + str(profile_number) + tag + '-freqs.dat'), 
-                sep='\s+', skiprows=5)
+                sep=r'\s+', skiprows=5)
         except:
             return None
         return freq
