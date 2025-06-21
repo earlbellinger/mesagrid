@@ -6,7 +6,7 @@ import scipy as sp
 import matplotlib
 import os
 from datetime import datetime
-
+from ipywidgets import interact, IntSlider
 #print(f'Updated starplots.py {datetime.now()}')
 
 plt.rcParams.update({'axes.linewidth' : 1,
@@ -355,7 +355,6 @@ def plot_panels(track, profile_number):
     plt.tight_layout()
 
 def star_interact(track):
-    from ipywidgets import interact, IntSlider
     interact(lambda profile_number: 
              plot_panels(track, profile_number), 
              profile_number=IntSlider(min=1, max=np.max(track.index.profile_number)))
@@ -381,7 +380,7 @@ def plot_kippenhahn_extras(fig):
     fig.tight_layout()
 
 
-def plot_kippenhahn(track, ax=None, plot_extras=False, title=None):
+def plot_kippenhahn(track, burning_threshold=None, ax=None, plot_extras=False, title=None):
     if ax is None:
         fig = plt.figure(figsize=(7,6.5))
         ax = fig.gca()
@@ -416,14 +415,20 @@ def plot_kippenhahn(track, ax=None, plot_extras=False, title=None):
     ax.set_rasterization_zorder(-1)
 
     # Plot Hydrogen and Helium Burning Zones
-    ppcnomin = np.array([np.min(p.mass[(p.pp+p.cno) > 0.001]) for p in track.profiles])
-    ppcnomax = np.array([np.max(p.mass[(p.pp+p.cno) > 0.001]) for p in track.profiles])
+    if burning_threshold is None:
+        try:
+            burning_threshold = 0.1*np.mean([np.mean(p.pp + p.cno + p.tri_alpha) for p in track.profiles])
+        except:
+            burning_threshold = 0.1*np.mean([np.mean(p.pp + p.cno + p.tri_alfa) for p in track.profiles])
+
+    ppcnomin = np.array([np.min(p.mass[(p.pp+p.cno) > burning_threshold]) for p in track.profiles])
+    ppcnomax = np.array([np.max(p.mass[(p.pp+p.cno) > burning_threshold]) for p in track.profiles])
     try:
-        triamin = np.array([np.min(p.mass[(p.tri_alpha) > 0.001]) for p in track.profiles])
-        triamax = np.array([np.max(p.mass[(p.tri_alpha) > 0.001]) for p in track.profiles])
+        triamin = np.array([np.min(p.mass[(p.tri_alpha) > burning_threshold]) for p in track.profiles])
+        triamax = np.array([np.max(p.mass[(p.tri_alpha) > burning_threshold]) for p in track.profiles])
     except:
-        triamin = np.array([np.min(p.mass[(p.tri_alfa) > 0.001]) for p in track.profiles])
-        triamax = np.array([np.max(p.mass[(p.tri_alfa) > 0.001]) for p in track.profiles])
+        triamin = np.array([np.min(p.mass[(p.tri_alfa) > burning_threshold]) for p in track.profiles])
+        triamax = np.array([np.max(p.mass[(p.tri_alfa) > burning_threshold]) for p in track.profiles])
 
     ax.fill_between(ages, ppcnomin, ppcnomax, hatch='\\\\', ec='k', fc='none', alpha=0.8, lw=0, zorder=-9999)
     ax.fill_between(ages, triamin,  triamax,  hatch='////', ec='k', fc='none', alpha=1,   lw=0, zorder=-9999)
@@ -451,22 +456,20 @@ def plot_kippenhahn(track, ax=None, plot_extras=False, title=None):
         plot_kippenhahn_extras(fig)
 
 
-def plot_structure(track, axs=None):
-    from ipywidgets import interact, IntSlider
-    from IPython.display import display
-
-    fig, axs = plt.subplots(1, 2, figsize=(12,6))
+def plot_structure(track):
+    fig = plt.figure(figsize=(12,6))
+    axs = fig.subplots(1, 2)
     plot_kippenhahn(track, ax=axs[0])
     line = [None]
     
     def change_profile(profile_num):
-        axs[1].cla()
+        # axs[1].cla()
 
-        if line[0]:
-            line[0].remove()
-            line[0] = False
+        # if line[0]:
+        #     line[0].remove()
+        #     line[0] = False
 
-        line[0] = axs[0].axvline(float(10**-9 * track.get_history(profile_num).star_age), color='black', linestyle='dashed')
+        # line[0] = axs[0].axvline(float(10**-9 * track.get_history(profile_num).star_age), color='black', linestyle='dashed')
         plot_composition(track, profile_number=profile_num, ax=axs[1])
 
     interact(lambda profile_number: change_profile(profile_number), profile_number=IntSlider(min=1, max=np.max(track.index.profile_number)))
