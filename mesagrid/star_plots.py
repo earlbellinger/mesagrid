@@ -6,8 +6,8 @@ import scipy
 import matplotlib
 import os
 from datetime import datetime
-print(f'Updated starplots.py {datetime.now()}')
 
+#print(f'Updated starplots.py {datetime.now()}')
 
 plt.rcParams.update({'axes.linewidth' : 1,
                      'ytick.major.width' : 1,
@@ -17,12 +17,12 @@ plt.rcParams.update({'axes.linewidth' : 1,
                      'xtick.labelsize': 12, 
                      'ytick.labelsize': 12,
                      'axes.labelsize': 16,
-                     'font.family': 'Serif',
+                     'font.family': 'DejaVu Serif',
                      'figure.figsize': (6, 4),
                      'mathtext.fontset': 'custom',
-                     'mathtext.rm': 'Serif',
-                     'mathtext.it': 'Serif:italic',
-                     'mathtext.bf': 'Serif:bold',
+                     'mathtext.rm': 'DejaVu Serif',
+                     'mathtext.it': 'DejaVu Serif:italic',
+                     'mathtext.bf': 'DejaVu Serif:bold',
                      'axes.labelpad' : 10,
                      'legend.fontsize' : 14
                     })
