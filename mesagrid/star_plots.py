@@ -360,7 +360,9 @@ def star_interact(track):
              profile_number=IntSlider(min=1, max=np.max(track.index.profile_number)))
     
 
-def plot_kippenhahn_extras(fig):
+def plot_kippenhahn_extras():
+    fig = plt.gcf()
+
     fig.supxlabel('Age [Gyr]')
     fig.supylabel(r'Fractional Mass [m / M$_\odot$]', x=0)
 
@@ -382,8 +384,7 @@ def plot_kippenhahn_extras(fig):
 
 def plot_kippenhahn(track, burning_threshold=None, ax=None, plot_extras=False, title=None):
     if ax is None:
-        fig = plt.figure(figsize=(7,6.5))
-        ax = fig.gca()
+        ax = plt.gca()
     if title is None:
         title = track.name
         
@@ -459,27 +460,23 @@ def plot_kippenhahn(track, burning_threshold=None, ax=None, plot_extras=False, t
     cb.ax.minorticks_off()
 
     if plot_extras:
-        plot_kippenhahn_extras(fig)
-
+        plot_kippenhahn_extras()
 
 def plot_structure(track):
-    fig = plt.figure(figsize=(12,6))
-    axs = fig.subplots(1, 2)
-    plot_kippenhahn(track, ax=axs[0])
-    line = [None]
-    
-    def change_profile(profile_num):
-        # axs[1].cla()
+    def plot_subplots(profile_number):
+        fig = plt.figure(figsize=(12,10))
 
-        # if line[0]:
-        #     line[0].remove()
-        #     line[0] = False
+        plt.subplot(2,2,1)
+        plot_kippenhahn(track)
+        plt.axvline(10**-9 * track.get_history(profile_number).star_age.values[0], color='black', linestyle='dashed')
 
-        # line[0] = axs[0].axvline(float(10**-9 * track.get_history(profile_num).star_age), color='black', linestyle='dashed')
-        plot_composition(track, profile_number=profile_num, ax=axs[1])
+        plt.subplot(2,2,2)
+        plot_composition(track, profile_number)
 
-    interact(lambda profile_number: change_profile(profile_number), profile_number=IntSlider(min=1, max=np.max(track.index.profile_number)))
-
+    interact(lambda profile_number: 
+             plot_subplots(profile_number), 
+             profile_number=IntSlider(min=1, max=np.max(track.index.profile_number)))
+ 
 
 def plot_temperature_gradients(track, profile_number, mass=True, ax=None, c1=color1, c2=color2, label=None):
     if ax is None:
