@@ -12,7 +12,7 @@ warnings.filterwarnings("ignore", category=TqdmExperimentalWarning)
 from tqdm.autonotebook import tqdm
 from datetime import datetime
 
-print(f'Updated star.py {datetime.now()}')
+#print(f'Updated star.py {datetime.now()}')
 
 
 class Track:
