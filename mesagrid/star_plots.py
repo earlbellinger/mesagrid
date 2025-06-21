@@ -209,8 +209,8 @@ def plot_composition(track, profile_number, mass=True, ax=None, title=None, lege
     # Plot Abundances
     ax.fill_between(x, 0, prof.x_mass_fraction_H, color=color1, alpha=0.3)
     ax.fill_between(x, 0, prof.y_mass_fraction_He, color=color2, alpha=0.3)
-    ax.plot(x, prof.x_mass_fraction_H, lw=3, label='H', c=color1, label='Hydrogen')
-    ax.plot(x, prof.y_mass_fraction_He, lw=3, label='He', c=color2, label='Helium')
+    ax.plot(x, prof.x_mass_fraction_H, lw=3, label='H', c=color1)
+    ax.plot(x, prof.y_mass_fraction_He, lw=3, label='He', c=color2)
 
     ax.set_xlim(0, max(x))
     ax.set_ylim(0, 1)
