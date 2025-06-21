@@ -398,20 +398,20 @@ def plot_kippenhahn(track, burning_threshold=None, ax=None, plot_extras=False, t
 
     # Plot Buoyancy Frequency and Convection
     X, Y = np.meshgrid(xm, ages)
-    Z = np.array([sp.interpolate.interp1d(g.m/(1.989e33), np.log10(g.N *  10**6/(2*np.pi)), 
+    Z = np.array([sp.interpolate.interp1d(g.m/g.M, np.log10(g.N *  10**6/(2*np.pi)), 
                                             fill_value=np.nan, bounds_error=0)(xm) 
                                             for g in track.gyres])
-    conv = np.array([sp.interpolate.interp1d(g.m/(1.989e33), g.N2<0, 
+    conv = np.array([sp.interpolate.interp1d(g.m/g.M, g.N2<0, 
                 fill_value=np.nan, bounds_error=0)(xm) 
             for g in track.gyres])
     
-    norm = matplotlib.colors.Normalize(vmin=-4, vmax=0)
+    norm = matplotlib.colors.Normalize(vmin=int(min([min(z[z != -np.inf]) for z in Z])), vmax=int(max([max(z) for z in Z])))
     cmap = matplotlib.cm.ScalarMappable(norm=norm, cmap='YlOrRd')
     vmin = int(norm.vmin)
     vmax = int(norm.vmax)
 
     ax.contourf(Y, X, conv, levels=[0,3], vmin=-1, vmax=3, cmap='Greys', zorder=-99999)
-    ax.contourf(Y, X, Z, levels=np.arange(-4, 1, 0.2), vmin=vmin, vmax=vmax, cmap='YlOrRd', zorder=-99999)
+    ax.contourf(Y, X, Z, levels=np.arange(int(min([min(z[z != -np.inf]) for z in Z])), int(max([max(z) for z in Z])), 0.2), vmin=vmin, vmax=vmax, cmap='YlOrRd', zorder=-99999)
     ax.set_rasterization_zorder(-1)
 
     # Plot Hydrogen and Helium Burning Zones
@@ -451,6 +451,12 @@ def plot_kippenhahn(track, burning_threshold=None, ax=None, plot_extras=False, t
     ax.set_ylim(0, mass_max * 1.1)         
     ax.tick_params(axis='both', which='major')
     ax.tick_params(axis='both', which='minor')
+
+    cb = plt.colorbar(cmap, label=r'Buoyancy frequency $\mathrm{log~N}$/Hz',
+                        boundaries=np.array(range(vmin, vmax+2, 1))-0.5,
+                        ticks=np.array(range(vmin, vmax+1, 1)),
+                        ax=ax)
+    cb.ax.minorticks_off()
 
     if plot_extras:
         plot_kippenhahn_extras(fig)
