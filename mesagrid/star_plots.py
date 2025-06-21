@@ -1,8 +1,8 @@
 import numpy as np
 import matplotlib.pyplot as plt
 import pandas as pd
+import scipy as sp
 
-import scipy
 import matplotlib
 import os
 from datetime import datetime
@@ -72,7 +72,7 @@ def plot_colors_interp(track, x, ax=None):
     y = np.linspace(ax.get_ylim()[0], ax.get_ylim()[1])
     xlim = ax.get_xlim()
 
-    temp_to_x = scipy.interpolate.interp1d(10**track.history['log_Teff'], x, fill_value='extrapolate')
+    temp_to_x = sp.interpolate.interp1d(10**track.history['log_Teff'], x, fill_value='extrapolate')
 
     star_colors = pd.read_table('bbr_color.txt', skiprows=19, header=None, sep=r'\s+').iloc[1::2, :]
     star_colors.columns = ['temperature', 'unit', 'deg', 'x', 'y', 'power', 'R', 'G', 'B', 'r', 'g', 'b', 'hex']
@@ -180,7 +180,7 @@ def plot_composition(track, profile_number, mass=True, ax=None, title=None, lege
     if not mass:
         x = 10**prof.logR / max(10**prof.logR)
 
-        mass_to_radius = scipy.interpolate.interp1d(prof.mass, x, fill_value='extrapolate')
+        mass_to_radius = sp.interpolate.interp1d(prof.mass, x, fill_value='extrapolate')
 
         # Convert Convection Zones to Radius Coordinate
         c1 = mass_to_radius(c1)
@@ -204,7 +204,8 @@ def plot_composition(track, profile_number, mass=True, ax=None, title=None, lege
 
     # Plot Hydrogen + Helium Burning Zones
     ax.fill_betweenx(np.linspace(0, 1), ppcnomin, ppcnomax, hatch='\\\\', ec='k', fc='none', alpha=0.5, lw=0, zorder=-999, label='H fusion')
-    ax.fill_betweenx(np.linspace(0, 1), triamin,  triamax,  hatch='////', ec='k', fc='none', alpha=0.5, lw=0, zorder=-999, label='He fusion')
+    if np.any(triamin > 0):
+        ax.fill_betweenx(np.linspace(0, 1), triamin,  triamax,  hatch='////', ec='k', fc='none', alpha=0.5, lw=0, zorder=-999, label='He fusion')
 
     # Plot Abundances
     ax.fill_between(x, 0, prof.x_mass_fraction_H, color=color1, alpha=0.3)
@@ -251,8 +252,8 @@ def plot_propagation(track, profile_number, ax=None, mass=False, legend=False):
     r[r <= 0] = 1e-99
     lamb = np.sqrt(1*(1+1))*gyre.cs / r * muHz
     
-    ax.plot(x, brunt, lw=3, color=color1, label='Buoyancy')
     ax.plot(x, lamb, lw=3, color=color2, label='Lamb')
+    ax.plot(x, brunt, lw=3, color=color1, label='Buoyancy')
     
     gmodes = np.minimum(brunt, lamb)
     pmodes = np.maximum(brunt, lamb)
@@ -391,10 +392,10 @@ def plot_kippenhahn(track, ax=None, plot_extras=False, title=None):
 
     # Plot Buoyancy Frequency and Convection
     X, Y = np.meshgrid(xm, ages)
-    Z = np.array([scipy.interpolate.interp1d(g.m/(1.989e33), np.log10(g.N *  10**6/(2*np.pi)), 
+    Z = np.array([sp.interpolate.interp1d(g.m/(1.989e33), np.log10(g.N *  10**6/(2*np.pi)), 
                                             fill_value=np.nan, bounds_error=0)(xm) 
                                             for g in track.gyres])
-    conv = np.array([scipy.interpolate.interp1d(g.m/(1.989e33), g.N<0, 
+    conv = np.array([sp.interpolate.interp1d(g.m/(1.989e33), g.N<0, 
                 fill_value=np.nan, bounds_error=0)(xm) 
             for g in track.gyres])
     
@@ -424,7 +425,7 @@ def plot_kippenhahn(track, ax=None, plot_extras=False, title=None):
     star_colors = pd.read_table(os.path.join(project_root, 'mesagrid/bbr_color.txt'), skiprows=19, header=None, sep=r'\s+').iloc[1::2, :]
     star_colors.columns = ['temperature', 'unit', 'deg', 'x', 'y', 'power', 'R', 'G', 'B', 'r', 'g', 'b', 'hex']
 
-    rgbs_in_teff = scipy.interpolate.interp1d(
+    rgbs_in_teff = sp.interpolate.interp1d(
         [float(t) for t in star_colors['temperature']], (star_colors['R'], star_colors['G'], star_colors['B'])
         )(10**track.history.log_Teff)
     
@@ -501,7 +502,7 @@ def plot_deltapi_vs_x(track, x, ax=None, min=0, max=-1, color=color1, label=None
         pg = track.history['delta_Pg'].iloc[min:max]
     else:
         print('period spacing might be noisy')
-        pg = [2*np.pi**2/np.sqrt(2)/ scipy.integrate.trapezoid(gyre.N[gyre.N>0]/gyre.x[gyre.N>0], gyre.x[gyre.N>0]) for gyre in track.gyres[min:max]]
+        pg = [2*np.pi**2/np.sqrt(2)/ sp.integrate.trapezoid(gyre.N[gyre.N>0]/gyre.x[gyre.N>0], gyre.x[gyre.N>0]) for gyre in track.gyres[min:max]]
     
     if isinstance(x, str):
         x = track.history[x].iloc[min:max]
@@ -549,7 +550,7 @@ def plot_exact_deltapi(track, profile_num, tag='', ell=1, ax=None, color=color1)
         pg = track.history['delta_Pg'][profile_num]
     else:
         gyre = track.load_gyre(profile_num)
-        pg = 2*np.pi**2/np.sqrt(2)/ scipy.integrate.trapezoid(gyre.N[gyre.N>0]/gyre.x[gyre.N>0], gyre.x[gyre.N>0])
+        pg = 2*np.pi**2/np.sqrt(2)/ sp.integrate.trapezoid(gyre.N[gyre.N>0]/gyre.x[gyre.N>0], gyre.x[gyre.N>0])
     ax.scatter(dipole_g['P']/3600, dipole_g['dP'], s=10, color=color)
     
     ax.plot(dipole_g['P'].iloc[1:]/3600, dipole_g['dP'].iloc[1:], alpha=0.5, linestyle='dashed', lw=1, color=color)
