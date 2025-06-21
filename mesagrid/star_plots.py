@@ -36,12 +36,12 @@ color2 = '#E76F51'
 
 # labels 
 density = r'Density $\rho$ [g cm$^{-3}$]'
-frac_radius = r'Fractional Radius [R$_\odot$]'
-frac_mass = r'Fractional Mass [M$_\odot$]'
+frac_radius = r'Fractional Radius $r/R$'
+frac_mass = r'Fractional Mass $m/M$'
 Teff = 'Effective Temperature [K]'
 luminosity = r'Luminosity [L$_\odot$]'
 frequency = r'Frequency [$\mu$Hz]'
-numodDnu = r'$\nu$ % $\Delta\nu$'
+numodDnu = r'$\nu$ mod $\Delta\nu$'
 
 project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 
