@@ -144,7 +144,7 @@ def plot_composition_old(track, profile_number):
     plt.legend()
 
 
-def plot_composition(track, profile_number, mass=True, ax=None, title=None):
+def plot_composition(track, profile_number, mass=True, ax=None, title=None, legend=False):
     if ax is None:
         ax = plt.gca()
     if title is None:
@@ -198,28 +198,31 @@ def plot_composition(track, profile_number, mass=True, ax=None, title=None):
         ax.set_xlabel(frac_radius)
 
     # Plot Convection Zones
-    ax.fill_betweenx(np.linspace(0,1), 0,  c1, color='darkgray', zorder=-9999)
+    ax.fill_betweenx(np.linspace(0,1), 0,  c1, color='darkgray', zorder=-9999, label='Convection')
     ax.fill_betweenx(np.linspace(0,1), c2, c3, color='darkgray', zorder=-9999)
     ax.fill_betweenx(np.linspace(0,1), c4, c5, color='darkgray', zorder=-9999)
 
     # Plot Hydrogen + Helium Burning Zones
-    ax.fill_betweenx(np.linspace(0, 1), ppcnomin, ppcnomax, hatch='\\\\', ec='k', fc='none', alpha=0.5, lw=0, zorder=-999)
-    ax.fill_betweenx(np.linspace(0, 1), triamin,  triamax,  hatch='////', ec='k', fc='none', alpha=0.5, lw=0, zorder=-999)
+    ax.fill_betweenx(np.linspace(0, 1), ppcnomin, ppcnomax, hatch='\\\\', ec='k', fc='none', alpha=0.5, lw=0, zorder=-999, label='H fusion')
+    ax.fill_betweenx(np.linspace(0, 1), triamin,  triamax,  hatch='////', ec='k', fc='none', alpha=0.5, lw=0, zorder=-999, label='He fusion')
 
     # Plot Abundances
     ax.fill_between(x, 0, prof.x_mass_fraction_H, color=color1, alpha=0.3)
     ax.fill_between(x, 0, prof.y_mass_fraction_He, color=color2, alpha=0.3)
-    ax.plot(x, prof.x_mass_fraction_H, lw=3, label='H', c=color1)
-    ax.plot(x, prof.y_mass_fraction_He, lw=3, label='He', c=color2)
+    ax.plot(x, prof.x_mass_fraction_H, lw=3, label='H', c=color1, label='Hydrogen')
+    ax.plot(x, prof.y_mass_fraction_He, lw=3, label='He', c=color2, label='Helium')
 
     ax.set_xlim(0, max(x))
     ax.set_ylim(0, 1)
     ax.set_ylabel('Mass Fraction')
     ax.tick_params(axis='both', which='major')
-    ax.tick_params(axis='both', which='minor')   
+    ax.tick_params(axis='both', which='minor')
+
+    if legend:
+        ax.legend()
 
 
-def plot_propagation(track, profile_number, ax=None, mass=False):
+def plot_propagation(track, profile_number, ax=None, mass=False, legend=False):
     if ax is None:
         ax = plt.gca()
 
@@ -274,6 +277,9 @@ def plot_propagation(track, profile_number, ax=None, mass=False):
     ax.set_ylim([1e1, 1e5])
     ax.set_xlim([0,1])
     ax.set_ylabel(frequency)
+
+    if legend:
+        ax.legend()
 
 
 def plot_echelle(track, profile_number, sph_deg=-1, rad_ord=-1):
