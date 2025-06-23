@@ -116,6 +116,9 @@ def plot_hr(track, profile_number=-1, show_profiles=False, solar_symbol=False, a
     ax.invert_xaxis()
     ax.set_yscale('log')
 
+    ax.set_ylim(10**(min(hist['log_L']) - 0.5), 10**(max(hist['log_L']) + 0.5))
+    ax.set_xlim(max(10**hist['log_Teff']) + 1000, min(10**hist['log_Teff']) - 1000)
+
     plot_colors(ax=ax, alpha=alpha_colors)
 
     ax.get_yaxis().set_major_formatter(matplotlib.ticker.ScalarFormatter())
