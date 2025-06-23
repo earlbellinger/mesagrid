@@ -464,10 +464,14 @@ def plot_kippenhahn(track, burning_threshold=None, radius_lines=[], ax=None, plo
     ax.tick_params(axis='both', which='major')
     ax.tick_params(axis='both', which='minor')
 
-    cb = plt.colorbar(cmap, label=r'Buoyancy frequency $\mathrm{log~N}$/Hz',
+    cb = plt.colorbar(cmap, 
                         boundaries=np.array(range(vmin, vmax+2, 1))-0.5,
                         ticks=np.array(range(vmin, vmax+1, 1)),
                         ax=ax)
+    
+    cb.ax.set_yticklabels([rf'$10^{t}$' for t in np.array(range(vmin, vmax+1, 1))])
+    cb.set_label(label=r'Buoyancy frequency [Hz]', labelpad=10)
+
     cb.ax.minorticks_off()
 
     if plot_extras:
