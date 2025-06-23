@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "mesagrid"
-version = "0.3.5"
+version = "0.3.6"
 authors = [
   { name="Earl Patrick Bellinger", email="earl.bellinger@yale.edu" },
 ]
