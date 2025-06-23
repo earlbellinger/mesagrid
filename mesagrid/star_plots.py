@@ -118,6 +118,8 @@ def plot_hr(track, profile_number=-1, show_profiles=False, solar_symbol=False, a
 
     ax.get_yaxis().set_major_formatter(matplotlib.ticker.ScalarFormatter())
     ax.get_yaxis().set_minor_formatter(matplotlib.ticker.ScalarFormatter())
+    if max(hist['log_L']) > 2:
+        ax.get_yaxis().set_minor_formatter(matplotlib.ticker.NullFormatter())
 
     ax.set_xlabel(Teff)
     ax.set_ylabel(luminosity)
