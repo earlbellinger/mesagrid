@@ -25,12 +25,14 @@ class Track:
                  history_name='history.data',
                  freqdir='',
                  classical_pulsator=False,
-                 name=None):
+                 name=None,
+                 color='k'):
         self.dir = dir
         self.parameters = parameters
         self.cpus = os.cpu_count() if cpus is None else cpus
         self.parallel=parallel
         self.name=name
+        self.color = color
         if name is None:
             self.name = self.dir
         

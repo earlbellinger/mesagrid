@@ -86,11 +86,13 @@ def plot_colors_interp(track, x, ax=None):
 
 
 
-def plot_hr(track, profile_number=-1, show_profiles=False, solar_symbol=False, ax=None, color='k', alpha=1, alpha_colors=0.5, label=None):
+def plot_hr(track, profile_number=-1, show_profiles=False, solar_symbol=False, ax=None, color=None, alpha=1, alpha_colors=0.5, label=None):
     if ax is None:
         ax = plt.gca()
     if label is None:
         label = track.name
+    if color is None:
+        color = track.color
         
     hist = track.history
     ax.plot(10**hist['log_Teff'], 
@@ -522,11 +524,13 @@ def plot_temperature_gradients(track, profile_number, mass=True, ax=None, c1=col
     ax.legend()
 
 
-def plot_deltapi_vs_x(track, x, ax=None, min=0, max=-1, color=color1, label=None):
+def plot_deltapi_vs_x(track, x, ax=None, min=0, max=-1, color=None, label=None):
     if ax is None:
         ax = plt.gca()
     if label is None:
         label = track.name
+    if color is None:
+        color = track.color
 
     if 'delta_Pg' in track.history.columns:
         pg = track.history['delta_Pg'].iloc[min:max]
@@ -541,11 +545,13 @@ def plot_deltapi_vs_x(track, x, ax=None, min=0, max=-1, color=color1, label=None
     ax.set_ylabel(r'Period Spacing $\Delta\Pi$ [s]')
     
 
-def plot_beta(track, ax=None, color=color1, label=None, min=0, max=-1):
+def plot_beta(track, ax=None, color=None, label=None, min=0, max=-1):
     if ax is None:
         ax = plt.gca()
     if label is None:
         label = track.name
+    if color is None:
+        color = track.color
 
     x = track.history['Fundamental Period'].iloc[min:max]
 
@@ -555,9 +561,11 @@ def plot_beta(track, ax=None, color=color1, label=None, min=0, max=-1):
     ax.set_xlabel('Fundamental Period [h]')
 
 
-def plot_exact_deltapi(track, profile_num, tag='', ell=1, ax=None, color=color1):
+def plot_exact_deltapi(track, profile_num, tag='', ell=1, ax=None, color=None):
     if ax is None:
         ax = plt.gca()
+    if color is None:
+        color = track.color
     frequencies = track.load_freq(profile_num, tag=tag)
 
     # get g-mode radial orders:
