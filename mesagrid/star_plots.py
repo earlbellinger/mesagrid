@@ -435,14 +435,14 @@ def plot_kippenhahn(track, burning_threshold=None, radius_lines=[], ax=None, plo
     ax.fill_between(ages, ppcnomin, ppcnomax, hatch='\\\\', ec='k', fc='none', alpha=0.8, lw=0, zorder=-9999)
     ax.fill_between(ages, triamin,  triamax,  hatch='////', ec='k', fc='none', alpha=1,   lw=0, zorder=-9999)
     
-    
+
     # Plot Lines of Constant Radius
     radii = [[prof.mass[np.argmin(np.abs(10**prof.logR - radius))] 
             if radius<10**prof.logR[0] else np.nan 
             for prof in track.profiles]
             for radius in radius_lines]#, 100]]
     for rad in radii:
-        ax.plot(ages, rad, ls='-', c='k', lw=1, zorder=-99)
+        ax.plot(ages, rad, ls='--', c='k', lw=1, zorder=-99)
         
 
     # Plot Spectral Type Line
