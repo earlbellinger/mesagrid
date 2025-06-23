@@ -382,9 +382,10 @@ def plot_kippenhahn_extras():
     fig.tight_layout()
 
 
-def plot_kippenhahn(track, burning_threshold=None, ax=None, plot_extras=False, title=None):
+def plot_kippenhahn(track, burning_threshold=None, radius_lines=[], ax=None, plot_extras=False, title=None):
     if ax is None:
-        ax = plt.gca()
+        fig = plt.figure(figsize=(7, 6.5))
+        ax = fig.gca()
     if title is None:
         title = track.name
         
@@ -434,6 +435,16 @@ def plot_kippenhahn(track, burning_threshold=None, ax=None, plot_extras=False, t
     ax.fill_between(ages, ppcnomin, ppcnomax, hatch='\\\\', ec='k', fc='none', alpha=0.8, lw=0, zorder=-9999)
     ax.fill_between(ages, triamin,  triamax,  hatch='////', ec='k', fc='none', alpha=1,   lw=0, zorder=-9999)
     
+    
+    # Plot Lines of Constant Radius
+    radii = [[prof.mass[np.argmin(np.abs(10**prof.logR - radius))] 
+            if radius<10**prof.logR[0] else np.nan 
+            for prof in track.profiles]
+            for radius in radius_lines]#, 100]]
+    for rad in radii:
+        ax.plot(ages, rad, ls='-', c='k', lw=1, zorder=-99)
+        
+
     # Plot Spectral Type Line
     star_colors = pd.read_table(os.path.join(project_root, 'mesagrid/bbr_color.txt'), skiprows=19, header=None, sep=r'\s+').iloc[1::2, :]
     star_colors.columns = ['temperature', 'unit', 'deg', 'x', 'y', 'power', 'R', 'G', 'B', 'r', 'g', 'b', 'hex']
@@ -445,7 +456,7 @@ def plot_kippenhahn(track, burning_threshold=None, ax=None, plot_extras=False, t
     ax.plot(ages, masses, c='w', lw=10, zorder=-999)
     for i in range(len(ages)):
         ax.plot(ages, masses, c=rgbs_in_teff[:, i], lw=8, zorder=-99)
-        
+
 
     ax.set_xlabel('Age [Gyr]')
     ax.set_ylabel(frac_mass)
