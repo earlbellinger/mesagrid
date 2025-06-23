@@ -2,6 +2,7 @@
 
 import os
 import numpy as np
+import matplotlib.pyplot as plt
 import pandas as pd
 from tomso import gyre
 from concurrent.futures import ThreadPoolExecutor
@@ -172,7 +173,7 @@ class Track:
 
 class Grid:
     def __init__(self, dir, load_history_extras=None, cpus=None, usecols_profiles=None, usecols_history=None,
-                parse_filename=None, logs_dir="LOGS"):
+                parse_filename=None, cmap='plasma', logs_dir=''):
         self.dir = dir
         self._df = None
         self.load_history_extras = load_history_extras
@@ -181,6 +182,7 @@ class Grid:
         self.usecols_history = usecols_history
         self.parse_filename = parse_filename if parse_filename is not None else self.parse_filename
         self.logs_dir = logs_dir
+        self.colors = plt.get_cmap(cmap)(np.linspace(0, 1, len(os.listdir(self.dir))+1))
     
     def __repr__(self):
         return f"Grid with {len(self.df)} tracks\nColumns: " + ', '.join(list(self.df.columns)) + "\n"+\
@@ -196,12 +198,13 @@ class Grid:
         return self._df
     
     def parse_filename(self, filename):
-        parts = filename.split('-')
+        file = filename.split('/')[0]
+        parts = file.split('-')
         parameters = {p.split('_')[0]: float(p.split('_')[1]) 
                       for p in parts}
         return parameters
     
-    def process_directory(self, d, load_history_extras):
+    def process_directory(self, d, load_history_extras, color):
         if os.path.isdir(os.path.join(self.dir, d)):
             parameters = self.parse_filename(d)
             track = Track(os.path.join(self.dir, d), 
@@ -210,7 +213,8 @@ class Grid:
                           usecols_profiles=self.usecols_profiles, 
                           usecols_history=self.usecols_history, 
                           cpus=self.cpus,
-                          logs_dir=self.logs_dir) 
+                          color=color,
+                          name=d) 
             parameters['Track'] = track
             return parameters
     
@@ -236,7 +240,7 @@ class Grid:
         #    data = list(tqdm(executor.map(lambda d: self.process_directory(d, self.load_history_extras), dirs),
         #                    total=len(dirs)))
         #data = [d for d in data if d is not None]  # Filter out any None results
-        data = [self.process_directory(d, self.load_history_extras) for d in tqdm(dirs)]
+        data = [self.process_directory(os.path.join(d, self.logs_dir), self.load_history_extras, self.colors[i]) for i, d in enumerate(tqdm(dirs))]
         df = pd.DataFrame(data)
         for col in df.columns:
             if col not in ['Track']:
