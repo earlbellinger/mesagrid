@@ -528,6 +528,20 @@ def plot_temperature_gradients(track, profile_number, mass=True, ax=None, c1=col
     ax.legend()
 
 
+def plot_fundamental_vs_x(track, x, ax=None, min=0, max=-1, color=None, label=None):
+    if ax is None:
+        ax = plt.gca()
+    if label is None:
+        label = track.name
+    if color is None:
+        color = track.color
+    
+    if isinstance(x, str):
+        x = track.history[x].iloc[min:max]
+    plt.plot(x, track.history['Fundamental Period'].iloc[min:max], color=color, label=label, lw=3)
+    ax.set_ylabel('Fundamental Period [h]')
+
+
 def plot_deltapi_vs_x(track, x, ax=None, min=0, max=-1, color=None, label=None):
     if ax is None:
         ax = plt.gca()

@@ -28,7 +28,8 @@ class Track:
                  freqdir='',
                  classical_pulsator=None,
                  name=None,
-                 color='k'):
+                 color='k',
+                 freq_tag=''):
         self.dir = dir
         self.parameters = parameters
         self.cpus = os.cpu_count() if cpus is None else cpus
@@ -37,6 +38,7 @@ class Track:
         self.color = color
         if name is None:
             self.name = self.dir
+        self.freq_tag = freq_tag
         
         
         self.usecols_profiles = usecols_profiles
@@ -161,10 +163,10 @@ class Track:
                                  total=len(self.index.profile_number), desc='Loading GYRE Files: '))
     
     ### FREQUENCIES
-    def load_freq(self, profile_number, tag=''):
+    def load_freq(self, profile_number):
         try:
             freq = pd.read_table(
-                os.path.join(self.dir, self.freqdir, 'profile' + str(profile_number) + tag + '-freqs.dat'), 
+                os.path.join(self.dir, self.freqdir, 'profile' + str(profile_number) + self.freq_tag + '-freqs.dat'), 
                 sep=r'\s+', skiprows=5)
         except:
             return None
@@ -181,7 +183,7 @@ class Track:
 
 class Grid:
     def __init__(self, dir, load_history_extras=None, cpus=None, usecols_profiles=None, usecols_history=None,
-                parse_filename=None, cmap='plasma', logs_dir=''):
+                parse_filename=None, cmap='plasma', logs_dir='', freq_label=''):
         self.dir = dir
         self._df = None
         self.load_history_extras = load_history_extras
@@ -191,6 +193,7 @@ class Grid:
         self.parse_filename = parse_filename if parse_filename is not None else self.parse_filename
         self.logs_dir = logs_dir
         self.colors = plt.get_cmap(cmap)(np.linspace(0, 1, len(os.listdir(self.dir))+1))
+        self.freq_label = freq_label
     
     def __repr__(self):
         return f"Grid with {len(self.df)} tracks\nColumns: " + ', '.join(list(self.df.columns)) + "\n"+\
@@ -222,7 +225,8 @@ class Grid:
                           usecols_history=self.usecols_history, 
                           cpus=self.cpus,
                           color=color,
-                          name=d.replace(self.logs_dir, '')) 
+                          name=d.replace(self.logs_dir, ''),
+                          freq_tag = self.freq_label) 
             parameters['Track'] = track
             return parameters
     
