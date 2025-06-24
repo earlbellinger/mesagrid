@@ -1,6 +1,7 @@
 """Main module."""
 
 import os
+import re
 import numpy as np
 import matplotlib.pyplot as plt
 import pandas as pd
@@ -25,7 +26,7 @@ class Track:
                  parallel=True,
                  history_name='history.data',
                  freqdir='',
-                 classical_pulsator=False,
+                 classical_pulsator=None,
                  name=None,
                  color='k'):
         self.dir = dir
@@ -43,6 +44,13 @@ class Track:
         
         self.history_name = history_name
         self.load_history_extras = load_history_extras
+
+        if classical_pulsator is None:
+            if any(re.search('-freqs', f) for f in os.listdir(self.dir) if os.path.isfile(os.path.join(self.dir, f))):
+                classical_pulsator = True
+            else:
+                classical_pulsator = False
+
         self.load_fundamentals = classical_pulsator
         self.loaded = False
 
