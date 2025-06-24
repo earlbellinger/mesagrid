@@ -616,10 +616,28 @@ def plot_exact_deltapi(track, profile_num, tag='', ell=1, ax=None, color=None):
     ax.set_ylabel('Exact Period Spacing [s]')
 
 
+def plot_growth_rates(track, cmap='plasma', ax=None):
+    if ax is None:
+        ax = plt.gca()
+    df = track.get_nad_freqs()
+
+    cmap = plt.get_cmap(cmap)
+    colors = cmap(np.linspace(0, 1, 10))
+    
+    for n in range(1, 1+10):
+        ax.plot(10**track.history['log_Teff'], df[f'radial {n-1} eta'], lw=2, color=colors[n-1], label=f'n = {n}')
+        ax.set_ylim(0, 1)
+        ax.set_xlabel('Effective Temperature [K]')
+        ax.set_ylabel(r'Growth Rate $\eta$')
+
+
 # Grid
 def plot_grid(grid, plot_type, separate=False, **kwargs):
     for track in grid.df['Track']:
-        plot_type(track, **kwargs)
+        try:
+            plot_type(track, **kwargs)
+        except:
+            print(f'{plot_type} could not be shown for {track.name}')
 
         if separate:
             plt.show()

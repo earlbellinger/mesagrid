@@ -106,6 +106,7 @@ class Track:
             self._freqs = self.get_freqs()
         return self._freqs
     
+
     ### HISTORY
     def load_history_file(self):
         if self.parameters is not None:
@@ -179,6 +180,23 @@ class Track:
         with ThreadPoolExecutor(max_workers=self.cpus) as executor:
             return list(tqdm(executor.map(self.load_freq, self.index.profile_number),
                                  total=len(self.index.profile_number), desc='Loading Frequencies: '))
+
+
+    def get_nad_freqs(self):
+        freqs = [pd.read_table(os.path.join(self.dir, self.freqdir, f'profile{p}'+ '-nad' +'-freqs.dat'), skiprows=5, sep=r'\s+')
+                                for p in tqdm(np.arange(min, max), desc='Loading Frequencies')]
+        df = self.history.copy()
+        for i in range(10):
+            df[f'radial {i} freq'] = pd.Series([f.iloc[i]['Re(freq)'] if len(f) > i else np.nan for f in freqs],
+                index=range(min, min + len(freqs)))
+            df[f'radial {i} im freq'] = pd.Series([f.iloc[i]['Im(freq)'] if len(f) > i else np.nan for f in freqs],
+                index=range(min, min + len(freqs)))
+            df[f'radial {i} eta'] = pd.Series([f.iloc[i]['eta'] if len(f) > i else np.nan for f in freqs],
+                index=range(min, min + len(freqs)))
+            df[f'radial {i} work'] = pd.Series([f.iloc[i]['W'] if len(f) > i else np.nan for f in freqs],
+                index=range(min, min + len(freqs)))
+        
+        return df
 
 
 class Grid:
