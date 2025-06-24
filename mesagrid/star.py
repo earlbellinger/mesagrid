@@ -182,7 +182,10 @@ class Track:
                                  total=len(self.index.profile_number), desc='Loading Frequencies: '))
 
 
-    def get_nad_freqs(self):
+    def get_nad_freqs(self, min=1, max=None):
+        if max is None:
+            max = len(self.freqs) + 1
+            
         freqs = [pd.read_table(os.path.join(self.dir, self.freqdir, f'profile{p}'+ '-nad' +'-freqs.dat'), skiprows=5, sep=r'\s+')
                                 for p in tqdm(np.arange(min, max), desc='Loading Frequencies')]
         df = self.history.copy()

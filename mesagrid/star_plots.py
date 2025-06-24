@@ -633,11 +633,21 @@ def plot_growth_rates(track, cmap='plasma', ax=None):
 
 # Grid
 def plot_grid(grid, plot_type, separate=False, **kwargs):
-    for track in grid.df['Track']:
-        try:
-            plot_type(track, **kwargs)
-        except:
-            print(f'{plot_type} could not be shown for {track.name}')
+    if isinstance(grid, pd.DataFrame):
+        for track in grid['Track']:
+            try:
+                plot_type(track, **kwargs)
+            except:
+                print(f'{plot_type} could not be shown for {track.name}')
 
-        if separate:
-            plt.show()
+            if separate:
+                plt.show()
+    else:
+        for track in grid.df['Track']:
+            try:
+                plot_type(track, **kwargs)
+            except:
+                print(f'{plot_type} could not be shown for {track.name}')
+
+            if separate:
+                plt.show()
