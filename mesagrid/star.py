@@ -214,7 +214,7 @@ class Grid:
                           usecols_history=self.usecols_history, 
                           cpus=self.cpus,
                           color=color,
-                          name=d) 
+                          name=d.replace(self.logs_dir, '')) 
             parameters['Track'] = track
             return parameters
     

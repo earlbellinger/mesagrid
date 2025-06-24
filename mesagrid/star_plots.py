@@ -599,3 +599,12 @@ def plot_exact_deltapi(track, profile_num, tag='', ell=1, ax=None, color=None):
 
     ax.set_xlabel('Period [h]')
     ax.set_ylabel('Exact Period Spacing [s]')
+
+
+# Grid
+def plot_grid(grid, plot_type, separate=False, *args):
+    for track in grid.df['Track']:
+        plot_type(track, *args)
+
+        if separate:
+            plt.show()
