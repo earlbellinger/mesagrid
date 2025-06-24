@@ -57,7 +57,7 @@ def plot_colors(ax=None, zorder=-100, alpha=0.5):
     star_colors.columns = ['temperature', 'unit', 'deg', 'x', 'y', 'power', 'R', 'G', 'B', 'r', 'g', 'b', 'hex']
 
     for temp, hex in zip(star_colors.temperature, star_colors.hex):
-        ax.fill_between(np.linspace(float(temp), float(temp)+100), y[0], y[-1], color=hex, zorder=zorder)
+        ax.fill_element = ax.fill_between(np.linspace(float(temp), float(temp)+100), y[0], y[-1], color=hex, zorder=zorder)
 
     ax.add_patch(plt.Rectangle((xlim[0], y[0]), xlim[1]-xlim[0], y[-1]-y[0], facecolor='white', edgecolor='none', alpha=1-alpha, zorder=zorder+1))
 
@@ -119,7 +119,8 @@ def plot_hr(track, profile_number=-1, show_profiles=False, solar_symbol=False, a
     ax.set_ylim(10**(min(hist['log_L']) - 0.5), 10**(max(hist['log_L']) + 0.5))
     ax.set_xlim(max(10**hist['log_Teff']) + 1000, min(10**hist['log_Teff']) - 1000)
 
-    plot_colors(ax=ax, alpha=alpha_colors)
+    if not hasattr(ax, 'fill_element'):
+        plot_colors(ax=ax, alpha=alpha_colors)
 
     ax.get_yaxis().set_major_formatter(matplotlib.ticker.ScalarFormatter())
     ax.get_yaxis().set_minor_formatter(matplotlib.ticker.ScalarFormatter())
@@ -602,9 +603,9 @@ def plot_exact_deltapi(track, profile_num, tag='', ell=1, ax=None, color=None):
 
 
 # Grid
-def plot_grid(grid, plot_type, separate=False, *args):
+def plot_grid(grid, plot_type, separate=False, **kwargs):
     for track in grid.df['Track']:
-        plot_type(track, *args)
+        plot_type(track, **kwargs)
 
         if separate:
             plt.show()
