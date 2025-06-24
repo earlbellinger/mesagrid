@@ -619,7 +619,7 @@ def plot_exact_deltapi(track, profile_num, tag='', ell=1, ax=None, color=None):
 def plot_growth_rates(track, cmap='plasma', ax=None):
     if ax is None:
         ax = plt.gca()
-    df = track.get_nad_freqs()
+    df = track.nad_freqs()
 
     cmap = plt.get_cmap(cmap)
     colors = cmap(np.linspace(0, 1, 10))

@@ -106,6 +106,13 @@ class Track:
             self._freqs = self.get_freqs()
         return self._freqs
     
+    
+    @property
+    def nad_freqs(self):
+        if self._nadfreqs is None:
+            self._nadfreqs = self.get_nad_freqs()
+        return self._nadfreqs
+    
 
     ### HISTORY
     def load_history_file(self):
@@ -185,7 +192,7 @@ class Track:
     def get_nad_freqs(self, min=1, max=None):
         if max is None:
             max = len(self.freqs) + 1
-            
+
         freqs = [pd.read_table(os.path.join(self.dir, self.freqdir, f'profile{p}'+ '-nad' +'-freqs.dat'), skiprows=5, sep=r'\s+')
                                 for p in tqdm(np.arange(min, max), desc='Loading Frequencies')]
         df = self.history.copy()
