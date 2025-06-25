@@ -354,8 +354,11 @@ def plot_panels(track, profile_number):
     plt.subplot(2,2,2)
     plot_composition(track, profile_number)
     
-    plt.subplot(2,2,3)
-    plot_echelle(track, profile_number)
+    try:
+        plt.subplot(2,2,3)
+        plot_echelle(track, profile_number)
+    except:
+        print('Echelle diagram could not be plotted - your track has no associated frequencies')
     
     plt.subplot(2,2,4)
     plot_propagation(track, profile_number)
