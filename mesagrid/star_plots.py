@@ -7,7 +7,7 @@ import matplotlib
 import os
 from datetime import datetime
 from ipywidgets import interact, IntSlider
-#print(f'Updated starplots.py {datetime.now()}')
+print(f'Updated starplots.py {datetime.now()}')
 
 plt.rcParams.update({'axes.linewidth' : 1,
                      'ytick.major.width' : 1,
@@ -362,10 +362,30 @@ def plot_panels(track, profile_number):
     
     plt.tight_layout()
 
-def star_interact(track):
-    interact(lambda profile_number: 
-             plot_panels(track, profile_number), 
-             profile_number=IntSlider(min=1, max=np.max(track.index.profile_number)))
+
+def star_interact(track, panels=None):
+    if panels is None:
+        interact(lambda profile_number: 
+                plot_panels(track, profile_number), 
+                profile_number=IntSlider(min=1, max=np.max(track.index.profile_number)))
+        
+    else:
+        num_panels = len(panels)
+        cols = int(np.ceil(np.sqrt(num_panels)))
+        rows = int(np.ceil(num_panels / cols))
+
+        def plot_interact(profile_num):
+            fig, axs = plt.subplots(rows, cols, figsize=(cols*6, rows*6))
+
+            for i in range(num_panels):
+                ax = axs.flatten()[i]
+
+                plot_type = panels[i]
+                plot_type(track, profile_number=profile_num, ax=ax)
+
+
+        interact(lambda profile_number: plot_interact(profile_number), profile_number=IntSlider(min=1, max=np.max(track.index.profile_number)))
+
     
 
 def plot_kippenhahn_extras():
@@ -390,7 +410,7 @@ def plot_kippenhahn_extras():
     fig.tight_layout()
 
 
-def plot_kippenhahn(track, burning_threshold=None, radius_lines=[], ax=None, plot_extras=False, title=None):
+def plot_kippenhahn(track, profile_number=None, burning_threshold=None, radius_lines=[], ax=None, plot_extras=False, title=None):
     if ax is None:
         fig = plt.figure(figsize=(7, 6.5))
         ax = fig.gca()
@@ -464,6 +484,9 @@ def plot_kippenhahn(track, burning_threshold=None, radius_lines=[], ax=None, plo
     ax.plot(ages, masses, c='w', lw=10, zorder=-999)
     for i in range(len(ages)):
         ax.plot(ages, masses, c=rgbs_in_teff[:, i], lw=8, zorder=-99)
+    
+    if profile_number is not None:
+        ax.axvline(10**-9 * track.get_history(profile_number).star_age.values[0], color='black', linestyle='dashed')
 
 
     ax.set_xlabel('Age [Gyr]')
