@@ -528,6 +528,23 @@ def plot_temperature_gradients(track, profile_number, mass=True, ax=None, c1=col
     ax.legend()
 
 
+def plot_x_vs_y(track, x, y, ax=None, min=0, max=-1, color=None, label=None):
+    if ax is None:
+        ax = plt.gca()
+    if label is None:
+        label = track.name
+    if color is None:
+        color = track.color
+    
+    if isinstance(x, str):
+        x = track.history[x].iloc[min:max]
+        
+    if isinstance(y, str):
+        y = track.history[y].iloc[min:max]
+
+    plt.plot(x, y, color=color, label=label, lw=3)
+
+
 def plot_fundamental_vs_x(track, x, ax=None, min=0, max=-1, color=None, label=None):
     if ax is None:
         ax = plt.gca()
