@@ -123,7 +123,12 @@ class Track:
                             usecols=self.usecols_history)
         
         if self.load_history_extras is not None and not self.loaded:
-            DF_ = self.load_history_extras(self, DF_)
+            if isinstance(self.load_history_extras, list):
+                for load_extras in self.load_history_extras:
+                    DF_ = load_extras(self, DF_)
+            else:
+                DF_ = self.load_history_extras(self, DF_)
+
         if self.load_fundamentals:
             DF_['Fundamental Period'] = pd.Series([uhz_to_h(float(f.iloc[0]['Re(freq)'])) if f is not None else np.nan for f in self.freqs])
         
