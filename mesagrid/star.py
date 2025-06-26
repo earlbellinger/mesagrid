@@ -2,6 +2,7 @@
 
 import os
 import re
+import sys
 import numpy as np
 import matplotlib.pyplot as plt
 import pandas as pd
@@ -14,7 +15,7 @@ warnings.filterwarnings("ignore", category=TqdmExperimentalWarning)
 from tqdm.autonotebook import tqdm
 from datetime import datetime
 
-#print(f'Updated star.py {datetime.now()}')
+print(f'Updated star.py {datetime.now()}')
 
 
 class Track:
@@ -49,10 +50,10 @@ class Track:
 
         if classical_pulsator is None:
             if any(re.search('-freqs', f) for f in os.listdir(self.dir) if os.path.isfile(os.path.join(self.dir, f))):
-                if self.load_history_extras is None:
-                    self.load_history_extras = load_fundamentals
                 if self.load_history_extras is not None:     
-                    self.load_history_extras.append(load_fundamentals)   
+                    self.load_history_extras.append(load_fundamentals) 
+                if self.load_history_extras is None:
+                    self.load_history_extras = load_fundamentals  
 
         self.loaded = False
 
@@ -151,14 +152,19 @@ class Track:
             usecols=self.usecols_profiles)
         return prof
     
-    def get_profiles(self):
+    def get_profile_list(self):
         if not self.parallel:
             return [self.load_profile(profile_number) 
                 for profile_number in tqdm(self.index.profile_number, desc='Loading Profiles: ')]
         with ThreadPoolExecutor(max_workers=self.cpus) as executor:
             return list(tqdm(executor.map(self.load_profile, self.index.profile_number),
                                  total=len(self.index.profile_number), desc='Loading Profiles: '))
+        
+    def get_profiles(self):
+        profiles =  self.get_profile_list()
+        return pd.DataFrame({'profile_number' : self.index.profile_number,'profiles' : profiles}).set_index('profile_number').profiles
     
+
     ### GYRE FILES
     def load_gyre(self, profile_number):
         prof = gyre.load_gyre(
