@@ -49,11 +49,11 @@ class Track:
 
         if classical_pulsator is None:
             if any(re.search('-freqs', f) for f in os.listdir(self.dir) if os.path.isfile(os.path.join(self.dir, f))):
-                classical_pulsator = True
-            else:
-                classical_pulsator = False
+                if self.load_history_extras is None:
+                    self.load_history_extras = load_fundamentals
+                if self.load_history_extras is not None:     
+                    self.load_history_extras.append(load_fundamentals)   
 
-        self.load_fundamentals = classical_pulsator
         self.loaded = False
 
         self.freqdir = freqdir
@@ -129,8 +129,6 @@ class Track:
             else:
                 DF_ = self.load_history_extras(self, DF_)
 
-        if self.load_fundamentals:
-            DF_['Fundamental Period'] = pd.Series([uhz_to_h(float(f.iloc[0]['Re(freq)'])) if f is not None else np.nan for f in self.freqs])
         
         self.loaded = True
         return DF_
@@ -323,6 +321,10 @@ def uhz_to_h(f):
 def gaussian_weight(x, center, fwhm):
     sigma = fwhm / (2 * np.sqrt(2 * np.log(2)))
     return np.exp(-0.5 * ((x - center) / sigma)**2)
+
+def load_fundamentals(self, DF_):
+    DF_['Fundamental Period'] = pd.Series([uhz_to_h(float(f.iloc[0]['Re(freq)'])) if f is not None else np.nan for f in self.freqs])
+    return DF_
 
 def load_history_seismology(self, DF_):
     import ratios
