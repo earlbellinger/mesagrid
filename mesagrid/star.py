@@ -326,6 +326,12 @@ def load_fundamentals(self, DF_):
     DF_['Fundamental Period'] = pd.Series([uhz_to_h(float(f.iloc[0]['Re(freq)'])) if f is not None else np.nan for f in self.freqs])
     return DF_
 
+def hr_velocity(self, DF_):
+    v_hr = np.sqrt(np.diff(DF_['log_L'])**2 + np.diff(DF_['log_Teff'])**2) / np.diff(DF_['star_age'])
+    DF_['v_hr'] = np.concatenate(([np.nan], v_hr))
+
+    return DF_
+
 def load_history_seismology(self, DF_):
     import ratios
     
