@@ -74,7 +74,7 @@ def plot_colors_interp(track, x, ax=None):
 
     temp_to_x = sp.interpolate.interp1d(10**track.history['log_Teff'], x, fill_value='extrapolate')
 
-    star_colors = pd.read_table('bbr_color.txt', skiprows=19, header=None, sep=r'\s+').iloc[1::2, :]
+    star_colors = pd.read_table(os.path.join(project_root, 'mesagrid/bbr_color.txt'), skiprows=19, header=None, sep=r'\s+').iloc[1::2, :]
     star_colors.columns = ['temperature', 'unit', 'deg', 'x', 'y', 'power', 'R', 'G', 'B', 'r', 'g', 'b', 'hex']
     for temp, hex in zip(star_colors.temperature, star_colors.hex):
         ax.fill_between(np.linspace(temp_to_x(float(temp)), temp_to_x(float(temp)+100)), y[0], y[-1], color=hex, zorder=-99)
@@ -86,7 +86,7 @@ def plot_colors_interp(track, x, ax=None):
 
 
 
-def plot_hr(track, profile_number=-1, show_profiles=False, solar_symbol=False, ax=None, color=None, alpha=1, alpha_colors=0.5, label=None):
+def plot_hr(track, profile_number=-1, show_profiles=False, solar_symbol=False, ax=None, color=None, alpha=1, alpha_colors=1, label=None):
     if ax is None:
         ax = plt.gca()
     if label is None:
@@ -413,7 +413,7 @@ def plot_kippenhahn_extras():
     fig.tight_layout()
 
 
-def plot_kippenhahn(track, profile_number=None, burning_threshold=None, radius_lines=[], ax=None, plot_extras=False, title=None):
+def plot_kippenhahn(track, profile_number=None, burning_threshold=None, radius_lines=[], ax=None, plot_extras=False, show_colorbar=True, title=None):
     if ax is None:
         fig = plt.figure(figsize=(7, 6.5))
         ax = fig.gca()
@@ -498,15 +498,16 @@ def plot_kippenhahn(track, profile_number=None, burning_threshold=None, radius_l
     ax.tick_params(axis='both', which='major')
     ax.tick_params(axis='both', which='minor')
 
-    cb = plt.colorbar(cmap, 
-                        boundaries=np.array(range(vmin, vmax+2, 1))-0.5,
-                        ticks=np.array(range(vmin, vmax+1, 1)),
-                        ax=ax)
-    
-    cb.ax.set_yticklabels([rf'$10^{t}$' for t in np.array(range(vmin, vmax+1, 1))])
-    cb.set_label(label=r'Buoyancy frequency [Hz]', labelpad=10)
+    if show_colorbar:
+        cb = plt.colorbar(cmap, 
+                            boundaries=np.array(range(vmin, vmax+2, 1))-0.5,
+                            ticks=np.array(range(vmin, vmax+1, 1)),
+                            ax=ax)
+        
+        cb.ax.set_yticklabels([rf'$10^{t}$' for t in np.array(range(vmin, vmax+1, 1))])
+        cb.set_label(label=r'Buoyancy frequency [Hz]', labelpad=10)
 
-    cb.ax.minorticks_off()
+        cb.ax.minorticks_off()
 
     if plot_extras:
         plot_kippenhahn_extras()
