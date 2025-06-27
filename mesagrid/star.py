@@ -64,6 +64,9 @@ class Track:
         self._profiles = None
         self._gyres    = None
         self._freqs    = None
+
+        self._profile_cache = {}  
+
     
     #def __repr__(self):
     #    return repr(self.history)
@@ -146,10 +149,15 @@ class Track:
     
     ### PROFILES
     def load_profile(self, profile_number):
+        if profile_number in self._profile_cache:
+            return self._profile_cache[profile_number]
+
         prof = pd.read_table(
             os.path.join(self.dir, 'profile' + str(profile_number) + '.data'), 
             skiprows=5, sep=r'\s+',
             usecols=self.usecols_profiles)
+        
+        self._profile_cache[profile_number] = prof
         return prof
     
     def get_profile_list(self):
