@@ -66,6 +66,9 @@ class Track:
         self._freqs    = None
 
         self._profile_cache = {}  
+        self._gyre_cache = {}  
+        self._freq_cache = {}  
+
 
     
     #def __repr__(self):
@@ -175,11 +178,16 @@ class Track:
 
     ### GYRE FILES
     def load_gyre(self, profile_number):
+        if profile_number in self._gyre_cache:
+            return self._gyre_cache[profile_number]
+        
         prof = gyre.load_gyre(
             os.path.join(self.dir, 'profile' + str(profile_number) + '.data.GYRE'))
+        
+        self._gyre_cache[profile_number] = prof
         return prof
     
-    def get_gyres(self):
+    def get_gyre_list(self):
         if not self.parallel:
             return [self.load_gyre(profile_number) 
                     for profile_number in tqdm(self.index.profile_number, desc='Loading GYRE Files: ')]
@@ -187,17 +195,28 @@ class Track:
             return list(tqdm(executor.map(self.load_gyre, self.index.profile_number),
                                  total=len(self.index.profile_number), desc='Loading GYRE Files: '))
     
+    def get_gyres(self):
+        gyres =  self.get_gyre_list()
+        return pd.DataFrame({'profile_number' : self.index.profile_number,'gyres' : gyres}).set_index('profile_number').gyres
+    
+
     ### FREQUENCIES
     def load_freq(self, profile_number):
+        if profile_number in self._freq_cache:
+            return self._freq_cache[profile_number]
+        
         try:
             freq = pd.read_table(
                 os.path.join(self.dir, self.freqdir, 'profile' + str(profile_number) + self.freq_tag + '-freqs.dat'), 
                 sep=r'\s+', skiprows=5)
+            
+            self._freq_cache[profile_number] = freq
         except:
             return None
         return freq
 
-    def get_freqs(self):
+
+    def get_freq_list(self):
         if not self.parallel:
             return [self.load_freq(profile_number) 
                     for profile_number in tqdm(self.index.profile_number, desc='Loading Frequencies: ')]
@@ -206,12 +225,18 @@ class Track:
                                  total=len(self.index.profile_number), desc='Loading Frequencies: '))
 
 
+    def get_freqs(self):
+        freqs =  self.get_freq_list()
+        return pd.DataFrame({'profile_number' : self.index.profile_number,'freqs' : freqs}).set_index('profile_number').freqs
+
+
     def get_nad_freqs(self, min=1, max=None):
         if max is None:
             max = len(self.freqs) + 1
 
-        freqs = [pd.read_table(os.path.join(self.dir, self.freqdir, f'profile{p}'+ '-nad' +'-freqs.dat'), skiprows=5, sep=r'\s+')
+        freqs = [pd.read_table(os.path.join(self.dir, self.freqdir, f'profile{p}'+ self.freq_tag + '-nad' +'-freqs.dat'), skiprows=5, sep=r'\s+')
                                 for p in tqdm(np.arange(min, max), desc='Loading Frequencies')]
+        
         df = self.history.copy()
         for i in range(10):
             df[f'radial {i} freq'] = pd.Series([f.iloc[i]['Re(freq)'] if len(f) > i else np.nan for f in freqs],
