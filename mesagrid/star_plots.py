@@ -159,7 +159,7 @@ def plot_composition(track, profile_number, burning_threshold=None, mass=True, a
         title = track.name
 
     if track._profiles is not None:
-        prof = track.profiles[profile_number-1]
+        prof = track.profiles[profile_number]
     else:
         prof = track.load_profile(profile_number)
 

@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "mesagrid"
-version = "0.3.13"
+version = "0.3.15"
 authors = [
   { name="Earl Patrick Bellinger", email="earl.bellinger@yale.edu" },
 ]
@@ -40,3 +40,12 @@ dependencies = [
 homepage = "https://github.com/earlbellinger/mesagrid"
 tracker = "https://github.com/earlbellinger/mesagrid/issues"
 documentation = "https://mesagrid.readthedocs.io/"
+
+[bumpver]
+current_version = "0.3.15"
+version_pattern = "MAJOR.MINOR.PATCH"
+
+[bumpver.file_patterns]
+"pyproject.toml" = ["version = \"{version}\""]
+"setup.py" = ["version=\"{version}\""]
+"requirements_dev.txt" = ["mesagrid>={version}"]

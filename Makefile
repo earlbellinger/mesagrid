@@ -1,4 +1,4 @@
-.PHONY: clean clean-build clean-pyc clean-test coverage dist docs help install lint lint/flake8
+.PHONY: pip clean clean-build clean-pyc clean-test coverage dist docs help install lint lint/flake8
 .DEFAULT_GOAL := help
 
 define BROWSER_PYSCRIPT
@@ -78,10 +78,13 @@ servedocs: docs ## compile the docs watching for changes
 release: dist ## package and upload a release
 	twine upload dist/*
 
-pip: ## build and upload to pip 
+BUMP ?= --patch
+
+pip: ## build and upload to pip
 	make clean 
-	python3 -m build
-	python3 -m twine upload dist/*
+	bumpver update $(BUMP)
+	python -m build
+	python -m twine upload dist/*
 
 dist: clean ## builds source and wheel package
 	python setup.py sdist
