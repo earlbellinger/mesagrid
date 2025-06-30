@@ -7,6 +7,10 @@ import matplotlib
 import os
 from datetime import datetime
 from ipywidgets import interact, IntSlider
+from concurrent.futures import ThreadPoolExecutor
+from tqdm import tqdm
+import subprocess
+
 print(f'Updated starplots.py {datetime.now()}')
 
 plt.rcParams.update({'axes.linewidth' : 1,
@@ -675,7 +679,6 @@ def plot_growth_rates(track, cmap='plasma', ax=None):
         ax.set_ylabel(r'Growth Rate $\eta$')
 
 
-# Grid
 def plot_grid(grid, plot_type, separate=False, **kwargs):
     if isinstance(grid, pd.DataFrame):
         for track in grid['Track']:
@@ -695,3 +698,121 @@ def plot_grid(grid, plot_type, separate=False, **kwargs):
 
             if separate:
                 plt.show()
+
+
+
+def plot_convection_circles(track, index, fig=None, base_color=None, ax=None, age_plot=False, age_scale=10**-9, age_label='Gyr'):  
+    if fig is None:
+        fig = plt.figure(figsize=(8,8))
+
+
+    colors = {'O':  (175/255, 201/255, 1),
+            'B': (199/255, 216/255, 1),
+            'A': (1,244/255, 243/255),
+            'F': (1, 229/255, 207/255),
+            'G': (1, 217/255, 178/255),
+            'K': (1, 199/255, 142/255),
+            'M': (1, 166/255, 81/255)
+            }
+    spectrals = np.array([1e99, 30000, 10000, 7500, 6000, 5200, 3700, 2400])
+    solar_mass_g = 1.9885 * 10**33
+        
+    if base_color is None:
+        base_color = colors['M']
+
+
+    if ax is None:
+        ax=fig.gca()
+    
+    ax.cla()
+
+    initial_mass = track.history.iloc[0]['star_mass']
+
+    df = track.history.iloc[index]
+    mass = df['star_mass']
+    age = df['star_age']
+
+    teff = 10**df.log_Teff
+    index = np.argmin(spectrals > teff) 
+    surface_color = list(colors.values())[index]
+
+    
+
+
+    base = plt.Circle((0,0), mass, color=base_color)
+    conv_core = plt.Circle((0,0), df['mass_conv_core'], color='gray')
+    conv1_top = plt.Circle((0,0), df['conv_mx1_top'] * mass, color='gray')
+    conv1_bot = plt.Circle((0,0), df['conv_mx1_bot'] * mass, color=base_color)
+    conv2_top = plt.Circle((0,0), df['conv_mx2_top'] * mass, color='gray')
+    conv2_bot = plt.Circle((0,0), df['conv_mx2_bot'] * mass, color=base_color)
+
+   
+    surface = matplotlib.patches.Annulus((0,0), mass + 0.1, 0.05, color=surface_color)
+
+    ax.add_patch(base)
+    ax.add_patch(conv2_top)
+    ax.add_patch(conv2_bot)
+            
+    ax.add_patch(conv1_top)
+    ax.add_patch(conv1_bot)
+
+    ax.add_patch(conv_core)
+
+    if df['epsnuc_M_5'] != -20:
+        h = matplotlib.patches.Annulus((0,0), df['epsnuc_M_8'] / solar_mass_g, (df['epsnuc_M_8'] - df['epsnuc_M_5']) / solar_mass_g, color='firebrick', alpha=0.5)
+        ax.add_patch(h)
+
+    if df['epsnuc_M_1'] != -20:
+        print(df['epsnuc_M_4'] / solar_mass_g)
+        print(df['epsnuc_M_1'] / solar_mass_g)
+
+        print((df['epsnuc_M_4'] - df['epsnuc_M_1'])/ solar_mass_g)
+        he = matplotlib.patches.Annulus((0,0), df['epsnuc_M_4']  / solar_mass_g, (df['epsnuc_M_4'] - df['epsnuc_M_1']) / solar_mass_g, color='orangered', alpha=0.5)
+        ax.add_patch(he)
+
+    ax.add_patch(surface)
+
+
+    if age_plot is True:
+        ax.text(x=0.8, y=0.95, s=f'Age: {age_scale*df['star_age']:.2f} {age_label}',
+                    transform=ax.transAxes)
+
+                
+    ax.set_xlim(-1.2 * initial_mass, 1.2 * initial_mass)
+    ax.set_ylim(-1.2 * initial_mass, 1.2 * initial_mass)
+    ax.set_xticks([])
+    ax.set_yticks([])
+
+
+
+def movie(track, image_folder_name='./images', video_name='starmovie.avi', fps=15):
+    def plot_both(index, axs, fig):
+        plot_hr(track, ax=axs[0])
+        axs[0].scatter(10**track.history['log_Teff'][index], 10**track.history['log_L'][index], color='red')
+        plot_convection_circles(track, index=index, fig=fig, ax=axs[1])
+
+
+    def render_frame(profile_num):
+        fig, axes = plt.subplots(1, 2, figsize=(18, 8))
+
+        plot_both(profile_num, axes, fig)  
+        filename = os.path.join(image_folder_name, f"frame_{profile_num:04d}.png")
+        fig.savefig(filename)
+        plt.close(fig)
+        
+
+    print(f'creating folder of images: {image_folder_name}')
+    if os.path.exists(image_folder_name):
+        print(f'image folder {image_folder_name} already exists, making video from existing images')
+    else:
+        os.makedirs(image_folder_name)
+
+        with ThreadPoolExecutor(max_workers=track.cpus) as executor:
+            list(tqdm(executor.map(render_frame, range(len(track.history))),
+                    total=len(track.history), desc="Rendering frames"))
+    
+    print(f'stitching images into video {video_name}')
+    subprocess.run([
+        'ffmpeg', '-y', '-framerate', str(fps), '-i', f'{image_folder_name}/frame_%04d.png',
+        '-c:v', 'libx264', '-pix_fmt', 'yuv420p', video_name
+    ])
