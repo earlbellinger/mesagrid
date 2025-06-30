@@ -245,7 +245,7 @@ def plot_propagation(track, profile_number, ax=None, mass=False, legend=False):
     hist = track.get_history(profile_number)
 
     if track._gyres is not None:
-        gyre = track.gyres[profile_number-1]
+        gyre = track.gyres[profile_number]
     else:
         gyre = track.load_gyre(profile_number)
     
@@ -305,8 +305,8 @@ def plot_echelle(track, profile_number, sph_deg=-1, rad_ord=-1):
     profs = track.profiles
     freqs = track.freqs
     
-    prof = profs[profile_number-1] if profile_number < len(profs) else profs[0]
-    freq = freqs[profile_number-1] if profile_number < len(freqs) else freqs[0]
+    prof = profs[profile_number] if profile_number < len(profs) else profs[0]
+    freq = freqs[profile_number] if profile_number < len(freqs) else freqs[0]
     
     radial = freq[freq.l == 0]
     Dnu = np.median(np.diff(radial['Re(freq)']))
@@ -535,7 +535,7 @@ def plot_temperature_gradients(track, profile_number, mass=True, ax=None, c1=col
         label=r'$\nabla_\mathrm{rad}$'
     
     if track._gyres is not None:
-        gyre = track.gyres[profile_number-1]
+        gyre = track.gyres[profile_number]
     else:
         gyre = track.load_gyre(profile_number)
     
