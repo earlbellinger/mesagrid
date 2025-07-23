@@ -181,6 +181,9 @@ class Track:
         if profile_number in self._gyre_cache:
             return self._gyre_cache[profile_number]
         
+        if os.path.exists(os.path.join(self.dir, 'profile' + str(profile_number) + '.data.GYRE')) is False:
+            raise Exception('tried to load .GYRE files but no .GYRE files found in directory (or improperly named)')
+
         prof = gyre.load_gyre(
             os.path.join(self.dir, 'profile' + str(profile_number) + '.data.GYRE'))
         
