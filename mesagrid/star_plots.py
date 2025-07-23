@@ -163,9 +163,15 @@ def plot_composition(track, profile_number, burning_threshold=None, mass=True, a
         title = track.name
 
     if track._profiles is not None:
-        prof = track.profiles[profile_number]
+        if profile_number < 0:
+            prof = track.profiles[len(track.index.profile_number) + profile_number]
+        else:
+            prof = track.profiles[profile_number]
     else:
-        prof = track.load_profile(profile_number)
+        if profile_number < 0:
+            prof = track.load_profile(len(track.index.profile_number) + profile_number)
+        else:
+            prof = track.load_profile(profile_number)
 
     x = prof.mass / max(prof.mass)
 
@@ -306,11 +312,29 @@ def plot_echelle(track, profile_number, sph_deg=-1, rad_ord=-1):
     ell_label = {0: 'radial', 1: 'dipole', 2: 'quadrupole', 3: 'octupole'}
     
     hist = track.get_history(profile_number)
-    profs = track.profiles
-    freqs = track.freqs
-    
-    prof = profs[profile_number] if profile_number < len(profs) else profs[0]
-    freq = freqs[profile_number] if profile_number < len(freqs) else freqs[0]
+
+    if track._profiles is not None:
+        if profile_number < 0:
+            prof = track.profiles[len(track.index.profile_number) + profile_number]
+        else:
+            prof = track.profiles[profile_number]
+    else:
+        if profile_number < 0:
+            prof = track.load_profile(len(track.index.profile_number) + profile_number)
+        else:
+            prof = track.load_profile(profile_number)
+
+
+    if track._freqs is not None:
+        if profile_number < 0:
+            freq = track.freqs[len(track.index.profile_number) + profile_number]
+        else:
+            freq = track.freqs[profile_number]
+    else:
+        if profile_number < 0:
+            freq = track.load_freq(len(track.index.profile_number) + profile_number)
+        else:
+            freq = track.load_freq(profile_number)
     
     radial = freq[freq.l == 0]
     Dnu = np.median(np.diff(radial['Re(freq)']))
