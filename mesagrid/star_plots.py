@@ -47,6 +47,8 @@ luminosity = r'Luminosity [L$_\odot$]'
 frequency = r'Frequency [$\mu$Hz]'
 numodDnu = r'$\nu$ mod $\Delta\nu$'
 
+m_sun = 1.9884098706980504E+33
+
 project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 
 
@@ -459,10 +461,10 @@ def plot_kippenhahn(track, profile_number=None, burning_threshold=None, radius_l
 
     # Plot Buoyancy Frequency and Convection
     X, Y = np.meshgrid(xm, ages)
-    Z = np.array([sp.interpolate.interp1d(g.m/g.M, np.log10(g.N *  10**6/(2*np.pi)), 
+    Z = np.array([sp.interpolate.interp1d(g.m/m_sun, np.log10(g.N *  10**6/(2*np.pi)), 
                                             fill_value=np.nan, bounds_error=0)(xm) 
                                             for g in track.gyres])
-    conv = np.array([sp.interpolate.interp1d(g.m/g.M, g.N2<0, 
+    conv = np.array([sp.interpolate.interp1d(g.m/m_sun, g.N2<0, 
                 fill_value=np.nan, bounds_error=0)(xm) 
             for g in track.gyres])
     
